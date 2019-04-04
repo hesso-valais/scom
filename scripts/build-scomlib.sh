@@ -2,7 +2,7 @@
 
 WORK_DIR=${0%/*}
 
-# Start build where 'src' folder is located
-cd ${WORK_DIR}/..
+# Start build in the 'src' folder
+cd ${WORK_DIR}/../src
 
-pipenv run python ./src/sino/scom/setup.py build_ext --inplace
+pipenv run python ./sino/scom/setup.py build_ext --inplace
