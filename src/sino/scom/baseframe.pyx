@@ -14,9 +14,10 @@ cimport baseframe
 cdef class BaseFrame(object):
     """Provides low-level functionality for an SCOM Frame
     """
-    cdef baseframe.scom_frame_t cFrame
+#    cdef baseframe.scom_frame_t cFrame
 
     def __init__(self, size_t buffer_size):
+        super(BaseFrame, self).__init__()
         self._initialize(buffer_size)
 
     def _initialize(self, size_t buffer_size):
