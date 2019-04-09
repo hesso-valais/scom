@@ -5,7 +5,7 @@
 import struct
 from libc.stdint cimport uint16_t, uint32_t
 from baseframe cimport BaseFrame
-from baseFrame cimport scom_frame_t
+from baseframe cimport scom_frame_t
 
 # Include from libc.stdint does not work with recent VS compilers
 #cdef extern from "vc_stdint.h":
