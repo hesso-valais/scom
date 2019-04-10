@@ -76,27 +76,27 @@ cdef class Property:
         self._cProperty.value_length = property_data_length
 
         if property_data_length == 4 and property_format in ('int32', 'signal'):
-            byte_array = struct.pack('I', property_data)      # Split uint32_t to byte array (4 bytes)
-            self._cProperty.value_buffer[0] = ord(byte_array[0])  # LSB
-            self._cProperty.value_buffer[1] = ord(byte_array[1])
-            self._cProperty.value_buffer[2] = ord(byte_array[2])
-            self._cProperty.value_buffer[3] = ord(byte_array[3])  # MSG
+            byte_array = struct.pack('I', property_data)        # Split uint32_t to byte array (4 bytes)
+            self._cProperty.value_buffer[0] = byte_array[0]     # LSB
+            self._cProperty.value_buffer[1] = byte_array[1]
+            self._cProperty.value_buffer[2] = byte_array[2]
+            self._cProperty.value_buffer[3] = byte_array[3]     # MSG
         elif property_data_length == 4 and property_format == 'float':
-            byte_array = struct.pack('f', property_data)      # Split float to byte array (4 bytes)
-            self._cProperty.value_buffer[0] = ord(byte_array[0])  # LSB
-            self._cProperty.value_buffer[1] = ord(byte_array[1])
-            self._cProperty.value_buffer[2] = ord(byte_array[2])
-            self._cProperty.value_buffer[3] = ord(byte_array[3])  # MSG
+            byte_array = struct.pack('f', property_data)        # Split float to byte array (4 bytes)
+            self._cProperty.value_buffer[0] = byte_array[0]     # LSB
+            self._cProperty.value_buffer[1] = byte_array[1]
+            self._cProperty.value_buffer[2] = byte_array[2]
+            self._cProperty.value_buffer[3] = byte_array[3]     # MSG
         elif property_data_length == 2 and property_format == 'short-enum':
-            byte_array = struct.pack('h', property_data)      # Split uin16_t to byte array (2 bytes)
-            self._cProperty.value_buffer[0] = ord(byte_array[0])  # LSB
-            self._cProperty.value_buffer[1] = ord(byte_array[1])  # MSG
+            byte_array = struct.pack('h', property_data)        # Split uin16_t to byte array (2 bytes)
+            self._cProperty.value_buffer[0] = byte_array[0]     # LSB
+            self._cProperty.value_buffer[1] = byte_array[1]     # MSG
         elif property_data_length == 1 and property_format == 'byte':
-            byte_array = struct.pack('b', property_data)      # Split uint8_t to byte array (1 byte)
-            self._cProperty.value_buffer[0] = ord(byte_array[0])
+            byte_array = struct.pack('b', property_data)        # Split uint8_t to byte array (1 byte)
+            self._cProperty.value_buffer[0] = byte_array[0]
         elif property_data_length == 1 and property_format == 'bool':
-            byte_array = struct.pack('b', property_data)      # Split uint8_t to byte array (1 byte)
-            self._cProperty.value_buffer[0] = ord(byte_array[0])
+            byte_array = struct.pack('b', property_data)        # Split uint8_t to byte array (1 byte)
+            self._cProperty.value_buffer[0] = byte_array[0]
         else:
             assert False, 'Not implemented yet!'
 
