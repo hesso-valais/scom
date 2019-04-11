@@ -13,3 +13,5 @@ pyserial = "*"
 
 [dev-packages]
 
+[requires]
+python_version = "3.4"  # And above is OK
