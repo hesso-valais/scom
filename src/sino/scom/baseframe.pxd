@@ -80,5 +80,5 @@ cdef extern from "scomlib/scom_data_link.h":
 # Python Frame class declared as cdef. This allows to use C types in python code.
 # Definition part (other part is in the *.pyx file)
 #
-cdef class BaseFrame:
+cdef class PyBaseFrame:
     cdef scom_frame_t cFrame

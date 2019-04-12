@@ -3,11 +3,11 @@
 
 import struct
 
-from .baseframe import BaseFrame
+from .baseframelib import PyBaseFrame
 from .scom import Scom
 
 
-class Frame(BaseFrame):
+class Frame(PyBaseFrame):
     """High Level SCOM frame providing a better python like style.
     """
     def __init__(self):

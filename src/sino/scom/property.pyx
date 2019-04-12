@@ -5,7 +5,7 @@
 
 import struct
 from libc.stdint cimport uint16_t, uint32_t
-from baseframe cimport BaseFrame
+from baseframe cimport PyBaseFrame
 from baseframe cimport scom_frame_t
 
 # Include from libc.stdint does not work with recent VS compilers
@@ -46,14 +46,14 @@ cdef extern from "scomlib/scom_property.h":
 cdef class Property:
     """Low-Level SCOM Property
     """
-    cdef BaseFrame _frame
+    cdef PyBaseFrame _frame
     cdef scom_property_t _cProperty
 
-    def __init__(self, BaseFrame frame):
+    def __init__(self, PyBaseFrame frame):
         self._frame = frame
         self._initialize(frame)
 
-    def _initialize(self, BaseFrame frame):
+    def _initialize(self, PyBaseFrame frame):
         scom_initialize_property(&self._cProperty, &frame.cFrame)
 
     def set_object_read(self, object_type, object_id, property_id):
