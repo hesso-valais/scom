@@ -92,3 +92,5 @@ ENV/
 .DS_Store
 src/sino/scom/baseframe.c
 src/sino/scom/property.c
+src/sino/scom/baseframe.cpp
+src/sino/scom/property.cpp
