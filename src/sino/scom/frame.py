@@ -3,7 +3,7 @@
 
 import struct
 
-from .baseframelib import PyBaseFrame
+from .baseframelib import *
 from .scom import Scom
 
 
