@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # cython: language_level=3
+# distutils: language = c++
 #
 
 import struct
