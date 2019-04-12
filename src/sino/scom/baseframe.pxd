@@ -72,8 +72,6 @@ cdef extern from "scomlib/scom_data_link.h":
     void scom_decode_frame_data(scom_frame_t* frame);
     size_t scom_frame_length(scom_frame_t* frame);
 
-#PY_SCOM_FRAME_HEADER_SIZE = SCOM_FRAME_HEADER_SIZE
-
 #
 # Python class representing low-level functionality for an SCOM Frame
 #

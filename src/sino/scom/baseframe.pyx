@@ -4,15 +4,13 @@
 #
 
 from libc.stdlib cimport malloc, free
+from baseframe cimport SCOM_FRAME_HEADER_SIZE
 from baseframe cimport SCOM_ERROR_NO_ERROR
 from baseframe cimport scom_frame_t
 from baseframe cimport scom_encode_request_frame
 from baseframe cimport scom_decode_frame_header
 from baseframe cimport scom_decode_frame_data
 from baseframe cimport scom_frame_length
-
-#PY_SCOM_FRAME_HEADER_SIZE = SCOM_FRAME_HEADER_SIZE
-PY_SCOM_FRAME_HEADER_SIZE = 14
 
 #
 # Python class representing low-level functionality for an SCOM Frame
@@ -74,7 +72,7 @@ cdef class PyBaseFrame:
 
     def buffer_as_hex_string(self):
         """Returns frame buffer as HEX string"""
-        frame_size  = PY_SCOM_FRAME_HEADER_SIZE    # SCOM_FRAME_HEADER_SIZE
+        frame_size  = SCOM_FRAME_HEADER_SIZE
         frame_size += self.cFrame.data_length + 2
         index = 0
         string = ''
@@ -97,7 +95,7 @@ cdef class PyBaseFrame:
 
     def copy_buffer(self):
         """Copies the frame buffer into a python byte array"""
-        frame_size  = PY_SCOM_FRAME_HEADER_SIZE    # SCOM_FRAME_HEADER_SIZE
+        frame_size  = SCOM_FRAME_HEADER_SIZE
         frame_size += self.cFrame.data_length + 2
         index = 0
         buffer = bytearray()
