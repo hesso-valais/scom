@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 # cython: language_level=3
+# distutils: language = c++
 #
 
 from libc.stdint cimport uintptr_t
 
 cdef extern from "scomlib/scom_data_link.h":
-    cdef int SCOM_FRAME_HEADER_SIZE
+    cdef int SCOM_FRAME_HEADER_SIZE             # Is in fact a define which cannot be brought into cython!
 
     ctypedef enum scom_error_t:
         SCOM_ERROR_NO_ERROR
@@ -70,6 +71,8 @@ cdef extern from "scomlib/scom_data_link.h":
     void scom_decode_frame_header(scom_frame_t* frame);
     void scom_decode_frame_data(scom_frame_t* frame);
     size_t scom_frame_length(scom_frame_t* frame);
+
+#PY_SCOM_FRAME_HEADER_SIZE = SCOM_FRAME_HEADER_SIZE
 
 #
 # Python class representing low-level functionality for an SCOM Frame

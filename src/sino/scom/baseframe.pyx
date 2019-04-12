@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 # cython: language_level=3
+# distutils: language = c++
 #
 
 from libc.stdlib cimport malloc, free
-cimport baseframe
+from baseframe import *
+
+#PY_SCOM_FRAME_HEADER_SIZE = SCOM_FRAME_HEADER_SIZE
+PY_SCOM_FRAME_HEADER_SIZE = 14
 
 #
 # Python class representing low-level functionality for an SCOM Frame
@@ -14,7 +18,6 @@ cimport baseframe
 cdef class BaseFrame(object):
     """Provides low-level functionality for an SCOM Frame
     """
-#    cdef baseframe.scom_frame_t cFrame
 
     def __init__(self, size_t buffer_size):
         super(BaseFrame, self).__init__()
@@ -65,7 +68,8 @@ cdef class BaseFrame(object):
 
     def buffer_as_hex_string(self):
         """Returns frame buffer as HEX string"""
-        frame_size = baseframe.SCOM_FRAME_HEADER_SIZE + self.cFrame.data_length + 2
+        frame_size  = PY_SCOM_FRAME_HEADER_SIZE    # SCOM_FRAME_HEADER_SIZE
+        frame_size += self.cFrame.data_length + 2
         index = 0
         string = ''
         while index < frame_size:
@@ -87,7 +91,8 @@ cdef class BaseFrame(object):
 
     def copy_buffer(self):
         """Copies the frame buffer into a python byte array"""
-        frame_size = baseframe.SCOM_FRAME_HEADER_SIZE + self.cFrame.data_length + 2
+        frame_size  = PY_SCOM_FRAME_HEADER_SIZE    # SCOM_FRAME_HEADER_SIZE
+        frame_size += self.cFrame.data_length + 2
         index = 0
         buffer = bytearray()
         while index < frame_size:
@@ -96,7 +101,7 @@ cdef class BaseFrame(object):
         return buffer
 
     def is_valid(self):
-        if self.last_error() == baseframe.SCOM_ERROR_NO_ERROR:
+        if self.last_error() == SCOM_ERROR_NO_ERROR:
             return True
         return False
 
@@ -107,13 +112,13 @@ cdef class BaseFrame(object):
 # Public/Exported python functions
 #
 def encode_request_frame(BaseFrame frame_obj):
-    baseframe.scom_encode_request_frame(&frame_obj.cFrame)
+    scom_encode_request_frame(&frame_obj.cFrame)
 
 def decode_frame_header(BaseFrame frame_obj):
-    baseframe.scom_decode_frame_header(&frame_obj.cFrame)
+    scom_decode_frame_header(&frame_obj.cFrame)
 
 def decode_frame_data(BaseFrame frame_obj):
-    baseframe.scom_decode_frame_data(&frame_obj.cFrame)
+    scom_decode_frame_data(&frame_obj.cFrame)
 
 def frame_length(BaseFrame frame_obj):
-    return baseframe.scom_frame_length(&frame_obj.cFrame)
+    return scom_frame_length(&frame_obj.cFrame)
