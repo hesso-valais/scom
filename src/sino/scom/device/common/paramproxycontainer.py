@@ -42,7 +42,7 @@ class ParamProxyContainer(object):
                 return True, param.value
             else:
                 # Get the value using PROPERTY_VALUE_QSP
-                value = self._readParameterMethod(param_info, propertyId=define.PROPERTY_VALUE_QSP)
+                value = self._readParameterMethod(param_info, property_id=define.PROPERTY_VALUE_QSP)
                 # but do not save it
                 # self.save(paramInfo, value, propertyId=studer.PROPERTY_VALUE_QSP)
                 return True, value
