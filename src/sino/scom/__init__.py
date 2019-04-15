@@ -10,4 +10,9 @@ from . import version
 # Allow to use `print(sino.scom.version)` to get version information
 version = version.__version__
 
+from .defines import *       # To get defines like OBJECT_TYPE_READ_USER_INFO and PROPERTY_ID_READ into the scom namespace
 from . import frame
+from .scom import Scom
+from . import device
+from .device.scomdevice import ScomDevice as Device
+from .device.devicefactory import DeviceFactory
