@@ -3,11 +3,10 @@
 
 import struct
 
-from .baseframelib import *
-from .scom import Scom
+from .baseframe import *
 
 
-class Frame(PyBaseFrame):
+class Frame(BaseFrame):
     """High Level SCOM frame providing a better python like style.
     """
     def __init__(self):
@@ -17,6 +16,8 @@ class Frame(PyBaseFrame):
         self.dataLength = 0
 
     def parse_frame_from_string(self, rx_buffer):
+        from .scom import Scom
+
         frame_length = 0
 
         if len(rx_buffer) < 12:
