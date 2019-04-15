@@ -5,15 +5,15 @@ WORK_DIR=${SCRIPT_DIR}/../src/sino/scom
 
 # Be sure virtual environment is set up
 cd ${SCRIPT_DIR}/..
-#pipenv install
+pipenv install
 
-# Start build in the 'src' folder
+# Start build in the 'root' folder
 cd ${SCRIPT_DIR}/..
 
 # Remove generated files to force a complete build
-rm -f src/sino/scom/*.cpp
-rm -f src/sino/scom/*.pyd
-rm -f src/sino/scom/*.so
+rm -f ${WORK_DIR}/*.cpp
+rm -f ${WORK_DIR}/*.pyd
+rm -f ${WORK_DIR}/*.so
 
 # Build the extension
 pipenv run python ./src/sino/scom/setup.py build_ext --inplace
