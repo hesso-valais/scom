@@ -4,13 +4,7 @@
 #
 
 from libc.stdlib cimport malloc, free
-from baseframe cimport SCOM_FRAME_HEADER_SIZE
-from baseframe cimport SCOM_ERROR_NO_ERROR
-from baseframe cimport scom_frame_t
-from baseframe cimport scom_encode_request_frame
-from baseframe cimport scom_decode_frame_header
-from baseframe cimport scom_decode_frame_data
-from baseframe cimport scom_frame_length
+from baseframe cimport *
 
 #
 # Python class representing low-level functionality for an SCOM Frame
@@ -18,13 +12,12 @@ from baseframe cimport scom_frame_length
 # Python Frame class declared as cdef. This allows to use C types in python code.
 # Implementation part
 #
-cdef class PyBaseFrame:
+cdef class BaseFrame:
     """Provides low-level functionality for an SCOM Frame
     """
-    cdef scom_frame_t cFrame
 
     def __init__(self, size_t buffer_size):
-        #super(PyBaseFrame, self).__init__()
+        #super(BaseFrame, self).__init__()
         self._initialize(buffer_size)
 
     def _initialize(self, size_t buffer_size):
@@ -115,14 +108,14 @@ cdef class PyBaseFrame:
 #
 # Public/Exported python functions
 #
-def encode_request_frame(PyBaseFrame frame_obj):
+def encode_request_frame(BaseFrame frame_obj):
     scom_encode_request_frame(&frame_obj.cFrame)
 
-def decode_frame_header(PyBaseFrame frame_obj):
+def decode_frame_header(BaseFrame frame_obj):
     scom_decode_frame_header(&frame_obj.cFrame)
 
-def decode_frame_data(PyBaseFrame frame_obj):
+def decode_frame_data(BaseFrame frame_obj):
     scom_decode_frame_data(&frame_obj.cFrame)
 
-def frame_length(PyBaseFrame frame_obj):
+def frame_length(BaseFrame frame_obj):
     return scom_frame_length(&frame_obj.cFrame)
