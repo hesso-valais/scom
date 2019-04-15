@@ -12,8 +12,8 @@ from Cython.Build import cythonize
 setup(
     name="scomlib",
     ext_modules=cythonize(
-                    [Extension("sino.scom.baseframelib", ["sino/scom/baseframe.pyx", "sino/scom/scomlib/scom_data_link.c"]),
-                     Extension("sino.scom.propertylib", ["sino/scom/property.pyx", "sino/scom/scomlib/scom_property.c"])]
+                    [Extension("baseframe", ["src/sino/scom/baseframe.pyx", "src/sino/scom/scomlib/scom_data_link.c"],)
+                     Extension("property", ["src/sino/scom/property.pyx", "src/sino/scom/scomlib/scom_property.c"],)]
                         ),
     include_dirs=['sino/scom', ],
     cmdclass={'build_ext': build_ext}
