@@ -95,12 +95,14 @@ setup(
     packages=find_packages('src'),
     package_dir={'': 'src'},
 
-    ext_modules=[Extension("sino.scom.baseframe", ["src/sino/scom/baseframe.pyx",
-                                                   "src/sino/scom/scomlib/scom_data_link.c"],
-                           include_dirs=['src/sino/scom'],),
-                 Extension("sino.scom.property", ["src/sino/scom/property.pyx",
-                                                  "src/sino/scom/scomlib/scom_property.c"],
-                           include_dirs=['src/sino/scom'],)],
+    ext_modules=[Extension("baseframe", ["src/sino/scom/baseframe.pyx",
+                                         "src/sino/scom/scomlib/scom_data_link.c"],
+                           include_dirs=['src/sino/scom'],
+                           language="c++",),
+                 Extension("property", ["src/sino/scom/property.pyx",
+                                        "src/sino/scom/scomlib/scom_property.c"],
+                           include_dirs=['src/sino/scom'],
+                           language="c++",)],
 
     include_dirs=['src/sino/scom', ],
 
