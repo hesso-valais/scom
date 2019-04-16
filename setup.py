@@ -10,8 +10,24 @@ import shutil
 import os
 import sys
 
+
+def read_version_info():
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           'src/sino/scom/version.py')) as vf:
+        content = vf.readlines()
+        for line in content:
+            if '__version__' in line:
+                values = line.split('=')
+                version = values[1]
+                version = version.strip('\n')
+                version = version.strip('\r')
+                version = version.replace('\'', '')
+                version = version.strip(' ')
+                return version
+    return '0.0.0'
+
 sys.path.append(os.path.abspath('./src'))
-from sino.scom.version import __version__
+__version__ = read_version_info()
 
 
 class PostInstallCommand(install):
