@@ -7,6 +7,7 @@ from distutils.extension import Extension
 from Cython.Distutils import build_ext
 import atexit
 import shutil
+import platform
 import os
 import sys
 
@@ -25,6 +26,7 @@ def read_version_info():
                 version = version.strip(' ')
                 return version
     return '0.0.0'
+
 
 sys.path.append(os.path.abspath('./src'))
 __version__ = read_version_info()
@@ -53,9 +55,11 @@ class PostInstallCommand(install):
             """
 
             def find_lib_bath(path, lib_name):
+                # Check if we need to copy '.pyd' files (on Windows) or '.so' files (on Linux and macOS)
+                lib_ext = '.pyd' if platform.system() in ('Windows', 'win32', 'win64') else '.so'
                 for root, dirs, files in os.walk(path):
                     for file in files:
-                        if file.startswith(lib_name) and file.endswith('.so'):
+                        if file.startswith(lib_name) and file.endswith(lib_ext):
                             return True, os.path.join(root, file)
                 return False, ''
 
