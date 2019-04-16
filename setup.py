@@ -111,7 +111,7 @@ class PostInstallCommand(install):
 
 
 setup(
-    name="sino.scom",
+    name="scom",
     version=__version__,
     description='Studer devices control library',
     url='https://www.studer-innotec.com',
