@@ -138,10 +138,10 @@ setup(
     data_files=[
         # First parameter is where it should be installed (relative paths or abs paths possible)
         # Second parameter is which files (from inside the project) should be taken into the dist package.
-        ('sino.scom',
-         ['src/sino/scom/scomlib/scom_data_link.h',
-          'src/sino/scom/scomlib/scom_port_c99.h',
-          'src/sino/scom/scomlib/scom_property.h']),
+        #('sino.scom',
+        # ['src/sino/scom/scomlib/scom_data_link.h',
+        #  'src/sino/scom/scomlib/scom_port_c99.h',
+        #  'src/sino/scom/scomlib/scom_property.h']),
     ],
 
     license='MIT',
