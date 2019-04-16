@@ -65,20 +65,24 @@ class PostInstallCommand(install):
 
             def find_site_package_path(pkg_name):
                 for p in sys.path:
-                    print(p)
                     pkg_path = os.path.join(p, pkg_name)
-                    if os.path.isdir(p) and os.path.isdir(pkg_path):
+                    if os.path.isdir(p) and p.endswith('site-packages') and os.path.isdir(pkg_path):
                         return p
                 return None
 
             pkg_struct = 'sino/scom'
-            site_pkg_path = find_site_package_path(pkg_struct)
+            site_pkg_path = find_site_package_path('setuptools')
             tmp_build_path = os.getcwd()
 
             # subprocess.call(['find ' + os.getcwd() + ' -iname *.so'], shell=True) # Py 3.5 and higher 'subprocess.run'
 
             if site_pkg_path:
                 lib_move_path = os.path.join(site_pkg_path, pkg_struct)
+
+                # Check if package structure is present in 'site-packages' folder
+                if not os.path.exists(lib_move_path):
+                    print('Creating package structure \'%s\'...' % pkg_struct)
+                    os.makedirs(lib_move_path)
 
                 ext_module_name = 'baseframe'
                 # Searching baseframe library which was build in the build path
