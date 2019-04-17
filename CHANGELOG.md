@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1 - (2019-04-17)
+- Added 'Xtender read version' example
+- Bugfix: Package installation now also works in an non-virtual environment
+
 ## 0.5.0 - (2019-04-16)
 - First release
 - Added DeviceManager
