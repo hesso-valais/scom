@@ -66,6 +66,10 @@ class PostInstallCommand(install):
             def find_site_package_path(pkg_name):
                 for p in sys.path:
                     pkg_path = os.path.join(p, pkg_name)
+                    # Standard python installation
+                    if os.path.isdir(p) and p.endswith('dist-packages') and os.path.isdir(pkg_path):
+                        return p
+                    # Virtual environments
                     if os.path.isdir(p) and p.endswith('site-packages') and os.path.isdir(pkg_path):
                         return p
                 return None

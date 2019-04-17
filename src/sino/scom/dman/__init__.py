@@ -4,6 +4,5 @@
 dman: Abbreviation for Device Manager
 """
 
-from . import devicesubscriber
-from . import devicenotifier
+from .devicesubscriber import DeviceSubscriber
 from .devicemanager import DeviceManager
