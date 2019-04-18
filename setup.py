@@ -31,6 +31,9 @@ def read_version_info():
 sys.path.append(os.path.abspath('./src'))
 __version__ = read_version_info()
 
+current_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(current_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 class PostInstallCommand(install):
     """Post-installation step.
@@ -118,7 +121,11 @@ setup(
     name="scom",
     version=__version__,
     description='Studer devices control library',
+    long_description=long_description,
     url='https://www.studer-innotec.com',
+    project_urls={'Bug Tracker': 'https://github.com/studer-innotec/scom/issues',
+                  'Source Code': 'https://github.com/studer-innotec/scom',
+                  },
 
     packages=find_packages('src'),
     package_dir={'': 'src'},
