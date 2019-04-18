@@ -144,6 +144,7 @@ setup(
     version=__version__,
     description='Studer devices control library',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://www.studer-innotec.com',
     project_urls={'Bug Tracker': 'https://github.com/studer-innotec/scom/issues',
                   'Source Code': 'https://github.com/studer-innotec/scom',
