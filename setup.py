@@ -4,7 +4,13 @@
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 from distutils.extension import Extension
-from Cython.Distutils import build_ext
+try:
+    from Cython.Distutils import build_ext
+    cython_present = True
+except ImportError:
+    cython_present = False
+    print('Warning: Cython package not available. Extension packages will not be build!')
+    from distutils.command.build_ext import build_ext
 import atexit
 import shutil
 import platform
@@ -30,6 +36,25 @@ def read_version_info():
 
 sys.path.append(os.path.abspath('./src'))
 __version__ = read_version_info()
+
+current_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(current_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
+if cython_present:
+    build_ext_cmd = build_ext
+else:
+    # Provide a pseudo build step which will not
+    # build extension. Without cython installed it would
+    # for sure fail.
+    class fake_build_ext(build_ext):
+        def run(self):
+            pass
+
+        def build_extension(self, ext):
+            pass
+
+    build_ext_cmd = fake_build_ext
 
 
 class PostInstallCommand(install):
@@ -118,7 +143,13 @@ setup(
     name="scom",
     version=__version__,
     description='Studer devices control library',
+    long_description=long_description,
     url='https://www.studer-innotec.com',
+    project_urls={'Bug Tracker': 'https://github.com/studer-innotec/scom/issues',
+                  'Source Code': 'https://github.com/studer-innotec/scom',
+                  },
+
+    setup_requires=['setuptools', 'Cython'],
 
     packages=find_packages('src'),
     package_dir={'': 'src'},
@@ -134,7 +165,7 @@ setup(
 
     include_dirs=['src/sino/scom', ],
 
-    cmdclass={'build_ext': build_ext,
+    cmdclass={'build_ext': build_ext_cmd,
               'install': PostInstallCommand},
 
     package_data={},
