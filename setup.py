@@ -127,6 +127,8 @@ setup(
                   'Source Code': 'https://github.com/studer-innotec/scom',
                   },
 
+    setup_requires=['setuptools', 'Cython'],
+
     packages=find_packages('src'),
     package_dir={'': 'src'},
 
