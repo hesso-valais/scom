@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.5.3 - (2019-04-18)
+- Fixed project description display problem
+
 ## 0.5.2 - (2019-04-18)
 - Added project description
 - Installing package even if Cython is not installed (needs manual post-install step)
