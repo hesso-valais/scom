@@ -2,7 +2,7 @@
 #
 
 from .scomdevice import ScomDevice
-# from .variopower import VarioPower
+from .variopower import VarioPower
 from .xtender import Xtender
 # from .bsp import Bsp
 
@@ -17,9 +17,9 @@ class DeviceFactory(object):
         """
         dev_cat = device_category.lower()
 
-#        if dev_cat == 'vario_power':
-#            new_device = VarioPower(device_address)
-        if dev_cat == 'xtender':
+        if dev_cat == 'vario_power':
+            new_device = VarioPower(device_address)
+        elif dev_cat == 'xtender':
             new_device = Xtender(device_address)
 #        elif dev_cat == 'bsp':
 #           new_device = Bsp(device_address)
