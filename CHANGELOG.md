@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.6.0 - (2019-05-24)
+- Added VarioPower device
+
 ## 0.5.3 - (2019-04-18)
 - Fixed project description display problem
 
