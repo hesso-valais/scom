@@ -44,6 +44,10 @@ class VarioPower(ScomDevice):
                       'batteryMinimumVoltage': {'name': 'batteryMinimumVoltage', 'number': 14003,
                                                 'propertyFormat': 'float', 'default': 48.0,
                                                 'studerName': 'uBatMin'},
+                      'gridMaximumCurrent': {'name': 'gridMaximumCurrent', 'number': 14065, 'propertyFormat': 'float',
+                                             'default': 2.0, 'studerName': 'iPvSMax'},
+                      'gridMinimumCurrent': {'name': 'gridMinimumCurrent', 'number': 14066, 'propertyFormat': 'float',
+                                             'default': -2.0, 'studerName': 'iPvSMin'},
                       'regulationMode': {'name': 'regulationMode', 'number': 14071,
                                          'propertyFormat': 'enum', 'default': 0,
                                          'studerName': 'regModeS'},
@@ -53,6 +57,11 @@ class VarioPower(ScomDevice):
                       'batteryChargeReferenceCurrent': {'name': 'batteryChargeReferenceCurrent', 'number': 14075,
                                                         'propertyFormat': 'float', 'default': 0.0,
                                                         'studerName': 'iBatSConsigne'},
+                      'iuCurveNoLoadVoltage': {'name': 'iuCurveNoLoadVoltage', 'number': 14076,
+                                               'propertyFormat': 'float', 'default': 700,
+                                               'studerName': 'no load voltage for IU curve (Series)'},
+                      'iuCurveCurrentSlope': {'name': 'iuCurveCurrentSlope', 'number': 14077, 'propertyFormat': 'float',
+                                              'default': 100, 'studerName': 'current slope for IU curve (Series)'},
                       'powerEnable': {'name': 'powerEnable', 'number': 14081,
                                       'propertyFormat': 'int32', 'default': 0,
                                       'studerName': 'ON of the VarioString'},
@@ -73,6 +82,9 @@ class VarioPower(ScomDevice):
                      'busVoltage':      {'name': 'busVoltage', 'number': 15004,
                                          'propertyFormat': 'float', 'default': 0.0,
                                          'studerName': 'PV voltage'},
+                     'pvCurrent':       {'name': 'pvCurrent', 'number': 15007,
+                                         'propertyFormat': 'float', 'default': 0.0,
+                                         'studerName': 'PV current'},
                      'operatingMode':   {'name': 'operatingMode', 'number': 15013,
                                          'propertyFormat': 'enum',  'default': 0,
                                          'studerName': 'PV operating mode'},
@@ -215,6 +227,10 @@ class VarioPower(ScomDevice):
         """Reads and returns the actual battery current."""
         return self._read_user_info_ex(self.userInfoTable['batteryCurrent'])
 
+    def get_grid_current(self):
+        """Reads and returns the actual grid current."""
+        return self._read_user_info_ex(self.userInfoTable['pvCurrent'])
+
     def get_operating_mode(self):
         """Reads and returns the actual operating mode."""
         return self._read_user_info_ex(self.userInfoTable['operatingMode'])
@@ -249,7 +265,7 @@ class VarioPower(ScomDevice):
         reg_mode_s = self._string_to_regulation_mode(regulation_mode)
 
         if reg_mode_s != 0:
-            return self._write_parameter_info('regulation_mode', reg_mode_s, property_id=self.PROPERTY_VALUE_QSP)
+            return self._write_parameter_info('regulationMode', reg_mode_s, property_id=self.PROPERTY_VALUE_QSP)
         return False
 
     def get_battery_charge_current(self, property_id_name='value'):
@@ -339,3 +355,52 @@ class VarioPower(ScomDevice):
         """Sets the minimum battery voltage.
         """
         return self._write_parameter_info('batteryMinimumVoltage', new_value, self.PROPERTY_UNSAVED_VALUE_QSP)
+
+    def set_iu_curve_no_load_voltage(self, new_value=700.0):
+        """Sets the no load voltage for IU curve.
+
+            Only available in IUcurve regulation mode
+        """
+        return self._write_parameter_info('iuCurveNoLoadVoltage', new_value, self.PROPERTY_UNSAVED_VALUE_QSP)
+
+    def get_iu_curve_no_load_voltage(self, property_id=PROPERTY_UNSAVED_VALUE_QSP):
+        """Gets the no load voltage for IU curve.
+
+            Only available in IUcurve regulation mode
+        """
+        return self._read_parameter_info('iuCurveNoLoadVoltage', property_id)
+
+    def set_grid_maximum_current(self, new_value):
+        """Sets the maximum allowable grid current.
+
+        Scaling error: all demanded values has to be divided by a factor of 5.333
+        """
+        return self._write_parameter_info('gridMaximumCurrent', new_value, self.PROPERTY_UNSAVED_VALUE_QSP)
+
+    def get_grid_maximum_current(self, property_id=PROPERTY_UNSAVED_VALUE_QSP):
+        """Gets the allowable positive grid current limitation.
+        By changing propertyIdName max and min values can be read.
+        """
+        return self._read_parameter_info('gridMaximumCurrent', property_id)
+
+    def set_grid_minimum_current(self, new_value):
+        """Sets the maximum allowable grid current.
+        """
+        return self._write_parameter_info('gridMinimumCurrent', new_value, self.PROPERTY_UNSAVED_VALUE_QSP)
+
+    def get_grid_minimum_current(self, property_id=PROPERTY_UNSAVED_VALUE_QSP):
+        """Gets the allowable negative grid current limitation.
+        By changing propertyIdName max and min values can be read.
+        """
+        return self._read_parameter_info('gridMinimumCurrent', property_id)
+
+    def set_iu_curve_slope(self, new_value):
+        """Sets the maximum allowable grid current.
+        """
+        return self._write_parameter_info('iuCurveCurrentSlope', new_value, self.PROPERTY_UNSAVED_VALUE_QSP)
+
+    def get_iu_curve_slope(self, property_id=PROPERTY_UNSAVED_VALUE_QSP):
+        """Gets the IUcurve current slope.
+
+        """
+        return self._read_parameter_info('iuCurveCurrentSlope', property_id)
