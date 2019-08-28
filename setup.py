@@ -174,10 +174,18 @@ setup(
     data_files=[
         # First parameter is where it should be installed (relative paths or abs paths possible)
         # Second parameter is which files (from inside the project) should be taken into the dist package.
-        #('sino.scom',
-        # ['src/sino/scom/scomlib/scom_data_link.h',
-        #  'src/sino/scom/scomlib/scom_port_c99.h',
-        #  'src/sino/scom/scomlib/scom_property.h']),
+
+        # Copy SCOM C library files during package installation. Files are necessary
+        # to build baseframe and property library later on the system.
+        ('sino.scom.scomlib',
+         ['src/sino/scom/scomlib/scom_data_link.c',
+          'src/sino/scom/scomlib/scom_data_link.h',
+          'src/sino/scom/scomlib/scom_init.c',
+          'src/sino/scom/scomlib/scom_init.h',
+          'src/sino/scom/scomlib/scom_port_c99.h',
+          'src/sino/scom/scomlib/scom_property.c',
+          'src/sino/scom/scomlib/scom_property.h',
+          'src/sino/scom/scomlib/vc_stdint.h']),
     ],
 
     license='MIT',
