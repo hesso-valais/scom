@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.0 - (2019-08-28)
+- Extendend functionality of VarioPower device (Thanks to Lino)
+- Fixed issue #1
+
 ## 0.6.0 - (2019-05-24)
 - Added VarioPower device
 
