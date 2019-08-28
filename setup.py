@@ -153,7 +153,7 @@ setup(
     setup_requires=['setuptools', 'Cython'],
 
     packages=find_packages('src'),
-    package_dir={'': 'src'},
+    package_dir={'sino': 'src/sino'},
 
     ext_modules=[Extension("baseframe", ["src/sino/scom/baseframe.pyx",
                                          "src/sino/scom/scomlib/scom_data_link.c"],
@@ -169,7 +169,11 @@ setup(
     cmdclass={'build_ext': build_ext_cmd,
               'install': PostInstallCommand},
 
-    package_data={},
+    package_data={'sino': ['scom/scomlib/*.*',
+                           'scom/baseframe.pxd',
+                           'scom/baseframe.pyx',
+                           'scom/property.pyx'],
+                  },
 
     data_files=[
         # First parameter is where it should be installed (relative paths or abs paths possible)
