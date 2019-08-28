@@ -185,7 +185,12 @@ setup(
           'src/sino/scom/scomlib/scom_port_c99.h',
           'src/sino/scom/scomlib/scom_property.c',
           'src/sino/scom/scomlib/scom_property.h',
-          'src/sino/scom/scomlib/vc_stdint.h']),
+          'src/sino/scom/scomlib/vc_stdint.h'],),
+
+        # Copy cython files to 'site-packages/sino/scom' folder during package installation.
+        ('sino.scom', ['src/sino/scom/baseframe.pxd',
+                       'src/sino/scom/baseframe.pyx',
+                       'src/sino/scom/property.pyx', ])
     ],
 
     license='MIT',
