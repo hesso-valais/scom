@@ -249,7 +249,7 @@ class VarioPower(ScomDevice):
         reg_mode_s = self._string_to_regulation_mode(regulation_mode)
 
         if reg_mode_s != 0:
-            return self._write_parameter_info('regulation_mode', reg_mode_s, property_id=self.PROPERTY_VALUE_QSP)
+            return self._write_parameter_info('regulationMode', reg_mode_s, property_id=self.PROPERTY_VALUE_QSP)
         return False
 
     def get_battery_charge_current(self, property_id_name='value'):
