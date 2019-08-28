@@ -174,23 +174,25 @@ setup(
     data_files=[
         # First parameter is where it should be installed (relative paths or abs paths possible)
         # Second parameter is which files (from inside the project) should be taken into the dist package.
+        #
+        # Files get installed on the root folder of the python install location (not in site-packages)
 
         # Copy SCOM C library files during package installation. Files are necessary
         # to build baseframe and property library later on the system.
-        ('sino.scom.scomlib',
-         ['src/sino/scom/scomlib/scom_data_link.c',
-          'src/sino/scom/scomlib/scom_data_link.h',
-          'src/sino/scom/scomlib/scom_init.c',
-          'src/sino/scom/scomlib/scom_init.h',
-          'src/sino/scom/scomlib/scom_port_c99.h',
-          'src/sino/scom/scomlib/scom_property.c',
-          'src/sino/scom/scomlib/scom_property.h',
-          'src/sino/scom/scomlib/vc_stdint.h'],),
+#        ('sino.scom.scomlib',
+#        ['src/sino/scom/scomlib/scom_data_link.c',
+#          'src/sino/scom/scomlib/scom_data_link.h',
+#          'src/sino/scom/scomlib/scom_init.c',
+#          'src/sino/scom/scomlib/scom_init.h',
+#          'src/sino/scom/scomlib/scom_port_c99.h',
+#          'src/sino/scom/scomlib/scom_property.c',
+#          'src/sino/scom/scomlib/scom_property.h',
+#          'src/sino/scom/scomlib/vc_stdint.h'],),
 
         # Copy cython files to 'site-packages/sino/scom' folder during package installation.
-        ('sino.scom', ['src/sino/scom/baseframe.pxd',
-                       'src/sino/scom/baseframe.pyx',
-                       'src/sino/scom/property.pyx', ])
+#        ('sino.scom', ['src/sino/scom/baseframe.pxd',
+#                       'src/sino/scom/baseframe.pyx',
+#                       'src/sino/scom/property.pyx', ])
     ],
 
     license='MIT',
