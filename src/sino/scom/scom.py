@@ -65,14 +65,19 @@ class Scom(object):
         self.log.debug('TX: ' + frame.buffer_as_hex_string())
         buffer = frame.copy_buffer()
 
-        self._mutex.acquire()        # lock
-        self.set_rx_timeout(rx_timeout_in_seconds)   # Set time to wait for the response
-        try:
-            self._ser.write(buffer)
-        except SerialTimeoutException:
-            self.log.error('Error writing frame!')
-        response_frame = self._read_frame()
-        self._mutex.release()        # unlock
+        lock_aquired = self._mutex.acquire(blocking=True, timeout=10)        # lock
+        response_frame = Frame()
+        if lock_aquired:
+            try:
+                self.set_rx_timeout(rx_timeout_in_seconds)  # Set time to wait for the response
+                self._ser.write(buffer)
+            except SerialTimeoutException:
+                self.log.error('Error writing frame!')
+            finally:
+                response_frame = self._read_frame()
+                self._mutex.release()       # unlock
+        else:
+            self.log.error('Could not lock mutex!')
         return response_frame
 
     def _read_frame(self, wait_time=1.0):
