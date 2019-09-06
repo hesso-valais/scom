@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import struct
-
+from .exeptions import ResponseFrameException
 from .baseframe import *
 
 
@@ -48,14 +48,24 @@ class Frame(BaseFrame):
     def is_response(self):
         self._synch_attributes()
 
-        assert self.dataLength >= 1
-        is_response = True if self._buffer[14] & 0b10 else False
-        return is_response
+        if self.dataLength < 1:
+            raise ValueError('DataLength is to small')
+
+        if len(self._buffer) < 14:
+            raise ValueError('Buffer size is to small')
+
+        is_a_response = True if self._buffer[14] & 0b10 else False
+        return is_a_response
 
     def is_data_error_flag_set(self):
-        assert self.dataLength >= 1
-        error = True if self._buffer[14] & 0b01 else False
-        return error
+        if self.dataLength < 1:
+            raise ValueError('DataLength is to small')
+
+        if len(self._buffer) < 14:
+            raise ValueError('Buffer size is to small')
+
+        err = True if self._buffer[14] & 0b01 else False
+        return err
 
     def is_valid(self):
         if not super(Frame, self).is_valid():
@@ -82,5 +92,6 @@ class Frame(BaseFrame):
             self.dataLength = super(Frame, self).data_length()
 
     def response_value_size(self):
-        assert self.is_response()
+        if not self.is_response():
+            raise ResponseFrameException('Not a response frame')
         return self.dataLength - 10
