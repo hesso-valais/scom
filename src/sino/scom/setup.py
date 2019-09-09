@@ -7,16 +7,23 @@ from Cython.Distutils import build_ext
 from Cython.Build import cythonize
 
 #
-# Call in shell: python setup.py build_ext --inplace
+# To build C libraries manually after package installation go
+# into the Python's site-packages directory and call:
+# python ./sino/scom/setup.py build_ext --inplace
+#
+# Move then the 'property' and 'baseframe' library into the sino/scom
+# folder (example):
+# mv property.*.so sino/scom/
+# mv baseframe.*.so sino/scom/
 #
 setup(
     name="scomlib",
     ext_modules=cythonize(
                     [Extension("baseframe",
-                               ["src/sino/scom/baseframe.pyx", "src/sino/scom/scomlib/scom_data_link.c"],
+                               ["sino/scom/baseframe.pyx", "sino/scom/scomlib/scom_data_link.c"],
                                language="c++",),
                      Extension("property",
-                               ["src/sino/scom/property.pyx", "src/sino/scom/scomlib/scom_property.c"],
+                               ["sino/scom/property.pyx", "sino/scom/scomlib/scom_property.c"],
                                language="c++",)]
                         ),
     include_dirs=['sino/scom', ],
