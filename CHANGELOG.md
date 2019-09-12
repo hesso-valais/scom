@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.1 - (2019-09-12)
+- Added timeout to mutex. SCOM library will no more accidentally block
+- Removed assert's and replaced them with Exceptions
+
 ## 0.7.0 - (2019-08-28)
 - Extendend functionality of VarioPower device (Thanks to Lino)
 - Fixed issue #1
