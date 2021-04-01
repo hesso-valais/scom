@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
 
-from six import iteritems
 import sys
 from threading import Thread
 import time
@@ -128,11 +127,11 @@ class DeviceManager(DeviceNotifier):
         """
         subscriber_info = {'subscriber': device_subscriber, 'device_category': device_category}
 
-        for deviceAddress, device in iteritems(self._device):
-            device_category = self.get_device_category_by_device(device)
+        for deviceAddress, the_device in self._device.items():
+            device_category = self.get_device_category_by_device(the_device)
             if device_category in subscriber_info['device_category'] or 'all' in subscriber_info['device_category']:
                 # Notify subscriber
-                subscriber_info['subscriber'].on_device_connected(device)
+                subscriber_info['subscriber'].on_device_connected(the_device)
 
     def _notify_subscribers(self, device, device_category='all', connected=True):
         """Notifies connect/disconnect of a device to all subscribers with the according filter policy.
@@ -189,7 +188,7 @@ class DeviceManager(DeviceNotifier):
             logging.error(e, exc_info=True)
         finally:
             # Wait here for a while. If leaving the method directly, the thread
-            # gets deleted and the isAlive() method won't work any more!
+            # gets deleted and the is_alive() method won't work any more!
             time.sleep(5)
             return
 
@@ -234,7 +233,7 @@ class DeviceManager(DeviceNotifier):
         assert len(self._addressScanInfo), 'No device categories to scan found!'
         need_garbage_collect = False
 
-        for deviceCategory, addressScanRange in iteritems(self._addressScanInfo):
+        for deviceCategory, addressScanRange in self._addressScanInfo.items():
             device_list = self._search_device_category(deviceCategory, addressScanRange)
 
             nbr_of_devices_found = len(device_list) if device_list else 0
