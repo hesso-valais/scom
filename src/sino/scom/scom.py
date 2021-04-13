@@ -119,7 +119,7 @@ class Scom(object):
 
             wait_time -= fract_wait_time
 
-        if rx_data_size_total is 0:
+        if rx_data_size_total == 0:
             self.log.info('Warning: No response from device')
 
         return None
