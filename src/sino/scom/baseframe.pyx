@@ -71,7 +71,7 @@ cdef class BaseFrame:
         string = ''
         while index < frame_size:
             # Convert each byte in buffer to hex
-            string += format(self.cFrame.buffer[index], '02x') + ' '
+            string += '{:02X} '.format(self.cFrame.buffer[index])
             index += 1
         return string
 
