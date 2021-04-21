@@ -146,8 +146,8 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://www.studer-innotec.com',
-    project_urls={'Bug Tracker': 'https://github.com/studer-innotec/scom/issues',
-                  'Source Code': 'https://github.com/studer-innotec/scom',
+    project_urls={'Bug Tracker': 'https://github.com/hesso-valais/scom/issues',
+                  'Source Code': 'https://github.com/hesso-valais/scom',
                   },
 
     setup_requires=['setuptools', 'Cython'],
@@ -208,8 +208,8 @@ setup(
 
         'License :: OSI Approved :: MIT License',
 
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
 
         'Operating System :: OS Independent',
     ],
