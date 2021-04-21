@@ -56,6 +56,9 @@ class ScomDevicesObserver(scom.dman.DeviceSubscriber):
         else:
             print('Other device type detected')
 
+    def on_device_disconnected(self, device):
+        pass
+
 
 def main():
     # Create device manager detecting devices on the SCOM bus

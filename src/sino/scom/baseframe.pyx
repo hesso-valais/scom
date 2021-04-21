@@ -17,7 +17,6 @@ cdef class BaseFrame:
     """
 
     def __init__(self, size_t buffer_size):
-        #super(BaseFrame, self).__init__()
         self._initialize(buffer_size)
 
     def _initialize(self, size_t buffer_size):
@@ -28,6 +27,8 @@ cdef class BaseFrame:
         self.cFrame.src_addr = src_addr
         self.cFrame.dst_addr = dest_addr
         self.cFrame.data_length = data_length
+
+        assert self.cFrame.buffer_size >= self.frame_length(), 'Buffer is too small!'
 
         # Write frame attributes into buffer
         self.encode_request()
@@ -57,26 +58,32 @@ cdef class BaseFrame:
             return 'src_addr: ' + str(self.cFrame.src_addr) + ',' + \
                    'dst_addr: ' + str(self.cFrame.dst_addr) + ',' + \
                    'service_id: ' + str(self.cFrame.service_id) + ',' + \
-                   'data_length: ' + str(self.cFrame.data_length) + \
-                   'buff:' + <bytes>self.cFrame.buffer + ', ' + str(self.cFrame.buffer_size)
+                   'data_length: ' + str(self.cFrame.data_length) + ',' \
+                   'buff:' + self.buffer_as_hex_string() + ', ' + str(self.cFrame.buffer_size)
         else:
             return 'NULL, ' + str(self.cFrame.buffer_size)
 
+    def frame_length(self) -> int:
+        frame_length = SCOM_FRAME_HEADER_SIZE
+        frame_length += self.cFrame.data_length + 2
+        return frame_length
+
     def buffer_as_hex_string(self) -> str:
         """Returns frame buffer as HEX string"""
-        frame_size  = SCOM_FRAME_HEADER_SIZE
-        frame_size += self.cFrame.data_length + 2
         index = 0
         string = ''
-        while index < frame_size:
+        while index < self.frame_length():
             # Convert each byte in buffer to hex
             string += '{:02X} '.format(self.cFrame.buffer[index])
             index += 1
-        return string
+        return string[:-1]   # Omit last space character
 
     def set_data_length(self, data_length: int):
         """Sets the data_length field of the frame"""
         self.cFrame.data_length = data_length
+
+        assert self.cFrame.buffer_size >= self.frame_length(), 'Buffer is too small!'
+
         encode_request_frame(self)
 
     def data_length(self) -> int:
@@ -87,11 +94,9 @@ cdef class BaseFrame:
 
     def copy_buffer(self) -> bytearray:
         """Copies the frame buffer into a python byte array"""
-        frame_size  = SCOM_FRAME_HEADER_SIZE
-        frame_size += self.cFrame.data_length + 2
         index = 0
         buffer = bytearray()
-        while index < frame_size:
+        while index < self.frame_length():
             buffer.append(self.cFrame.buffer[index])
             index += 1
         return buffer

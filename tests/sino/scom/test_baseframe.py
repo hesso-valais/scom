@@ -6,15 +6,34 @@ import unittest
 
 from tests.sino.scom.paths import update_working_directory
 
-update_working_directory()  # Needed when: 'pipenv run python -m unittest tests/cloudio/glue/{this_file}.py'
+update_working_directory()  # Needed when: 'pipenv run python -m unittest tests/sino/scom/{this_file}.py'
 
 
 class TestScomBaseFrame(unittest.TestCase):
     """Tests BaseFrame class.
     """
 
-    # @unittest.skip('because adding a new test')
-    def test_cloudio_attribute_getter(self):
+    def test_object_creation(self):
+        from sino.scom.baseframe import BaseFrame
+
+        base_frame = BaseFrame(buffer_size=16)
+        print(base_frame)
+        self.assertEqual(0, base_frame.data_length())
+
+        bf2 = BaseFrame(buffer_size=8)
+        with self.assertRaises(AssertionError):
+            bf2.initialize(12, 9, 7) # AssertionError: Buffer is too small!
+        print(bf2)
+        self.assertEqual(7, bf2.data_length())
+
+        bf2.print_cframe()
+
+        # buffer size of 18 is minimum for 2 bytes data
+        bf3 = BaseFrame(buffer_size=18)
+        bf3.set_data_length(2)
+        print(bf3)
+
+    def test_initialize_using_bytearray(self):
         from sino.scom.baseframe import BaseFrame
 
         base_frame = BaseFrame(buffer_size=64)
