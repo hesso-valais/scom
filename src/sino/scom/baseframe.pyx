@@ -21,10 +21,10 @@ cdef class BaseFrame:
         self._initialize(buffer_size)
 
     def _initialize(self, size_t buffer_size):
-        self.cFrame.buffer = <char *>malloc(sizeof(char) * buffer_size)
+        self.cFrame.buffer = <unsigned char *>malloc(sizeof(unsigned char) * buffer_size)
         self.cFrame.buffer_size = buffer_size
 
-    def initialize(self, src_addr, dest_addr, data_length=0):
+    def initialize(self, src_addr: int, dest_addr: int, data_length:int =0):
         self.cFrame.src_addr = src_addr
         self.cFrame.dst_addr = dest_addr
         self.cFrame.data_length = data_length
@@ -37,7 +37,7 @@ cdef class BaseFrame:
         # Call c library to do it
         encode_request_frame(self)
 
-    def initialize_using_bytearray(self, byte_array, array_size):
+    def initialize_using_bytearray(self, byte_array: bytearray, array_size: int):
         """Initializes the frame using the content of a byte array."""
         index = 0
         # Copy byte array into c array
@@ -46,7 +46,6 @@ cdef class BaseFrame:
             index += 1
 
         decode_frame_header(self)
-        pass
 
     def __dealloc__(self):
         if self.cFrame.buffer:
@@ -63,7 +62,7 @@ cdef class BaseFrame:
         else:
             return 'NULL, ' + str(self.cFrame.buffer_size)
 
-    def buffer_as_hex_string(self):
+    def buffer_as_hex_string(self) -> str:
         """Returns frame buffer as HEX string"""
         frame_size  = SCOM_FRAME_HEADER_SIZE
         frame_size += self.cFrame.data_length + 2
@@ -75,18 +74,18 @@ cdef class BaseFrame:
             index += 1
         return string
 
-    def set_data_length(self, data_length):
+    def set_data_length(self, data_length: int):
         """Sets the data_length field of the frame"""
         self.cFrame.data_length = data_length
         encode_request_frame(self)
 
-    def data_length(self):
+    def data_length(self) -> int:
         return self.cFrame.data_length
 
     def print_cframe(self):
         print(self.cFrame)
 
-    def copy_buffer(self):
+    def copy_buffer(self) -> bytearray:
         """Copies the frame buffer into a python byte array"""
         frame_size  = SCOM_FRAME_HEADER_SIZE
         frame_size += self.cFrame.data_length + 2
@@ -97,7 +96,7 @@ cdef class BaseFrame:
             index += 1
         return buffer
 
-    def is_valid(self):
+    def is_valid(self) -> bool:
         if self.last_error() == SCOM_ERROR_NO_ERROR:
             return True
         return False
