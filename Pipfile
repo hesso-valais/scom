@@ -1,17 +1,14 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [packages]
-
 cython = "*"
 pyserial = "*"
 
-
 [dev-packages]
+scom = {editable = true, path = "."}
 
 [requires]
-python_version = "3.4"  # And above is OK
+python_version = "3.9"  # 3.8 and above is OK
