@@ -194,12 +194,12 @@ typedef struct {
     /** \brief last error that occurred in the frame processing */
     scom_error_t last_error;
 
-    char* buffer;           /**< \brief buffer where the frame is build */
+    unsigned char* buffer;           /**< \brief buffer where the frame is build */
     size_t buffer_size;     /**< \brief maximum usable size of the buffer */
 } scom_frame_t;
 
 
-void scom_initialize_frame(scom_frame_t* frame, char* buffer, size_t buffer_size);
+void scom_initialize_frame(scom_frame_t* frame, unsigned char* buffer, size_t buffer_size);
 void scom_encode_request_frame(scom_frame_t* frame);
 void scom_decode_frame_header(scom_frame_t* frame);
 void scom_decode_frame_data(scom_frame_t* frame);

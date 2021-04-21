@@ -54,7 +54,7 @@ void scom_initialize_property(scom_property_t* property, scom_frame_t* frame)
 /* internal function to encode the property info in the frame */
 static void scom_encode_property_header(scom_property_t* property)
 {
-    char* header =  property->frame->buffer + SCOM_PROPERTY_HEADER_OFFSET;
+    unsigned char* header =  property->frame->buffer + SCOM_PROPERTY_HEADER_OFFSET;
 
     scom_write_le16(&header[0], property->object_type);
     scom_write_le32(&header[2], property->object_id);

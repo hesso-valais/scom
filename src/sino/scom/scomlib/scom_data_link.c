@@ -69,7 +69,7 @@ THE SOFTWARE.
 
 
 /* ----------- private definitions ---------------- */
-static uint16_t scom_calc_checksum(    const char *data,
+static uint16_t scom_calc_checksum(    const unsigned char *data,
                                        uint_fast16_t length);
 
 #define SCOM_START_BYTE 0xAA
@@ -83,7 +83,7 @@ static uint16_t scom_calc_checksum(    const char *data,
  * \param buffer the buffer used to encode the data
  * \param buffer_size the size of a buffer, allowing user defined size
  */
-void scom_initialize_frame(scom_frame_t* frame, char* buffer, size_t buffer_size)
+void scom_initialize_frame(scom_frame_t* frame, unsigned char* buffer, size_t buffer_size)
 {
     frame->last_error = SCOM_ERROR_NO_ERROR;
     frame->buffer = buffer;
@@ -101,14 +101,14 @@ void scom_encode_request_frame(scom_frame_t* frame)
 {
     uint16_t checksum;
 
-    frame->buffer[0] = (char)SCOM_START_BYTE;
+    frame->buffer[0] = (unsigned char)SCOM_START_BYTE;
 
     /* the frame flag of a request must always be 0 */
     frame->buffer[1] = 0;
 
     scom_write_le32(&frame->buffer[2], frame->src_addr);
     scom_write_le32(&frame->buffer[6], frame->dst_addr);
-    scom_write_le16(&frame->buffer[10], frame->data_length);
+    scom_write_le16(&frame->buffer[10], (uint16_t)frame->data_length);
 
 
     /* write header checksum calculated without start_byte and checksum */
@@ -124,7 +124,7 @@ void scom_encode_request_frame(scom_frame_t* frame)
 
     /* write data checksum */
     if(scom_frame_length(frame) <= frame->buffer_size) {
-        checksum = scom_calc_checksum(&frame->buffer[SCOM_FRAME_HEADER_SIZE], frame->data_length);
+        checksum = scom_calc_checksum(&frame->buffer[SCOM_FRAME_HEADER_SIZE], (uint_fast16_t)frame->data_length);
         scom_write_le16(&frame->buffer[SCOM_FRAME_HEADER_SIZE + frame->data_length], checksum);
     }
     else {
@@ -201,7 +201,8 @@ void scom_decode_frame_data(scom_frame_t* frame)
 
     if(frame->last_error == SCOM_ERROR_NO_ERROR) {
 
-        calculated_checksum = scom_calc_checksum(&frame->buffer[SCOM_FRAME_HEADER_SIZE], frame->data_length);
+        calculated_checksum = scom_calc_checksum(&frame->buffer[SCOM_FRAME_HEADER_SIZE],
+                                                 (uint_fast16_t)frame->data_length);
 
         sent_checksum = scom_read_le16(&frame->buffer[SCOM_FRAME_HEADER_SIZE + frame->data_length]);
 
@@ -256,7 +257,7 @@ size_t scom_frame_length(scom_frame_t* frame)
  *
  * @see http://tools.ietf.org/html/rfc1146
  */
-uint16_t scom_calc_checksum(    const char *data,
+uint16_t scom_calc_checksum(    const unsigned char *data,
                                 uint_fast16_t length)
 {
         uint_fast8_t A = 0xFF, B = 0;
