@@ -9,11 +9,6 @@ import logging
 from .baseframe import BaseFrame
 from .frame import Frame
 
-# Enable logging
-logging.basicConfig(format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S')
-logging.getLogger(__name__).setLevel(logging.INFO)
-
 
 class Scom(object):
     """Handles the SCOM serial connection.

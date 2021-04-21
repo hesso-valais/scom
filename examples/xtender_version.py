@@ -5,6 +5,7 @@
 import time
 import sys
 import os
+import logging
 
 # In case 'scom' package is not installed, try to work with local source files.
 # You may need to build extension modules 'baseframe' and 'property' using the
@@ -12,6 +13,12 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '../src')))
 
 from sino import scom
+
+# Enable logging
+logging.basicConfig(format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
+scom_logger = logging.getLogger('sino.scom.scom')
+scom_logger.setLevel(logging.DEBUG)
 
 """
 Example showing how to use the SCOM DeviceManager to find Studer devices

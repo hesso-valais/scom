@@ -7,8 +7,6 @@ from ..property import Property
 from ..frame import BaseFrame
 from ..device.scomdevice import ScomDevice
 
-logging.getLogger(__name__).setLevel(logging.INFO)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
-
 
 class VarioPower(ScomDevice):
 

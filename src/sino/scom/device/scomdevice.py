@@ -11,8 +11,6 @@ from ..frame import Frame as ScomFrame
 from ..defines import *
 from .common.paramproxycontainer import ParamProxyContainer
 
-logging.getLogger(__name__).setLevel(logging.INFO)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
-
 
 # Links:
 # - Object counter: http://python-3-patterns-idioms-test.readthedocs.io/en/latest/InitializationAndCleanup.html

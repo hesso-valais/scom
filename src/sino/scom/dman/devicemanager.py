@@ -15,9 +15,6 @@ from ..property import Property
 from ..device.scomdevice import ScomDevice
 from .devicenotifier import DeviceNotifier
 
-# Set logging level
-logging.getLogger(__name__).setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
-
 
 class DeviceManager(DeviceNotifier):
     """Manages the Devices found on the SCOM bus.
