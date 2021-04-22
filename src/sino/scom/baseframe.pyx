@@ -38,7 +38,7 @@ cdef class BaseFrame:
         # Call c library to do it
         encode_request_frame(self)
 
-    def initialize_using_bytearray(self, byte_array: bytearray, array_size: int):
+    def initialize_using_bytearray(self, byte_array: bytearray or bytes, array_size: int):
         """Initializes the frame using the content of a byte array."""
         index = 0
         # Copy byte array into c array

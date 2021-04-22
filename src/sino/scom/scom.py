@@ -26,9 +26,8 @@ class Scom(object):
         self._ser = None  # type: serial.Serial or None
         self._mutex = Lock()
         self._rxBuffer = bytearray()     # All bytes received go in here
-        pass
 
-    def initialize(self, com_port: str, baudrate: str = '38400'):
+    def initialize(self, com_port: str, baudrate: str or int = '38400'):
         """Initializes the instance and connects to the given COM port.
 
         :param com_port Name of the COM port. Ex. '/dev/ttyUSB0', 'COM1', etc.

@@ -58,3 +58,6 @@ class TestScomBaseFrame(unittest.TestCase):
         self.assertEqual(result[1], 0xBB)
         self.assertEqual(result[2], 0xCC)
         self.assertEqual(result[3], 0xDD)
+
+        base_frame.is_valid()
+        base_frame.last_error()
