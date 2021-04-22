@@ -61,6 +61,11 @@ class ScomDevicesObserver(scom.dman.DeviceSubscriber):
 
 
 def main():
+    import os
+
+    config['scom']['interface'] = os.environ.get('SINO_SCOM_TEST_INTERFACE', config['scom']['interface'])
+    config['scom']['baudrate'] = os.environ.get('SINO_SCOM_TEST_BAUDRATE', config['scom']['baudrate'])
+
     # Create device manager detecting devices on the SCOM bus
     device_manager = scom.dman.DeviceManager(config=config)
 
