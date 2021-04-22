@@ -4,6 +4,7 @@
 - Added tests
 - Updated C library code to support newer MSVC compilers under Windows
 - Removed Python 2.x support
+- Adjusted logging configuration according to a library
 
 ## 0.7.1 - (2019-09-12)
 - Added timeout to mutex. SCOM library will no more accidentally block
