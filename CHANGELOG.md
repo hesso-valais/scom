@@ -1,11 +1,17 @@
 # Changelog
 
+## 0.7.2 - (2021-04-22)
+- Added tests
+- Updated C library code to support newer MSVC compilers under Windows
+- Removed Python 2.x support
+- Adjusted logging configuration according to a library
+
 ## 0.7.1 - (2019-09-12)
 - Added timeout to mutex. SCOM library will no more accidentally block
 - Removed assert's and replaced them with Exceptions
 
 ## 0.7.0 - (2019-08-28)
-- Extendend functionality of VarioPower device (Thanks to Lino)
+- Extended functionality of VarioPower device (Thanks to Lino)
 - Fixed issue #1
 
 ## 0.6.0 - (2019-05-24)
@@ -20,7 +26,7 @@
 
 ## 0.5.1 - (2019-04-17)
 - Added 'Xtender read version' example
-- Bugfix: Package installation now also works in an non-virtual environment
+- Bugfix: Package installation now also works in a non-virtual environment
 
 ## 0.5.0 - (2019-04-16)
 - First release

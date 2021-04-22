@@ -3,7 +3,12 @@
 
 __author__ = 'Thomas Sterren'
 __contributors__ = []
-__version__ = '0.7.1'
+__version__ = '0.7.2'
+
+
+def main():
+    print(__version__)
+
 
 if __name__ == '__main__':
-    print(__version__)
+    main()

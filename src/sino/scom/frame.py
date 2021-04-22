@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
 import struct
 from .exeptions import ResponseFrameException
 from .baseframe import *
@@ -9,8 +10,11 @@ from .baseframe import *
 class Frame(BaseFrame):
     """High Level SCOM frame providing a better python like style.
     """
-    def __init__(self):
-        super(Frame, self).__init__(1024)
+
+    log = logging.getLogger(__name__)
+
+    def __init__(self, buffer_size: int = 1024):
+        super(Frame, self).__init__(buffer_size=buffer_size)
 
         self._buffer = bytearray()
         self.dataLength = 0
@@ -36,7 +40,7 @@ class Frame(BaseFrame):
 
             return True, frame_length
         else:
-            print('Error parsing RX frame')
+            self.log.warning('Error parsing RX frame')
             return False, frame_length
 
     def as_hex_string(self):
@@ -46,7 +50,7 @@ class Frame(BaseFrame):
         return not self.is_response()
 
     def is_response(self):
-        self._synch_attributes()
+        self._sync_attributes()
 
         if self.dataLength < 1:
             raise ValueError('DataLength is to small')
@@ -71,8 +75,10 @@ class Frame(BaseFrame):
         if not super(Frame, self).is_valid():
             return False
 
-        if self.is_request():
-            pass
+        try:
+            self.is_request()
+        except ValueError:
+            return False
 
         if self.is_response():
             if self.is_data_error_flag_set():
@@ -82,7 +88,7 @@ class Frame(BaseFrame):
 
     def __getitem__(self, item): return self._buffer[item]
 
-    def _synch_attributes(self):
+    def _sync_attributes(self):
         """Syncs scom.Frame attributes using the cFrame attributes if necessary
         """
         # Check if data length size of cFrame differs from dataLength

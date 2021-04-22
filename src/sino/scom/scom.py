@@ -6,12 +6,8 @@ import time
 import serial
 from serial.serialutil import SerialException, SerialTimeoutException
 import logging
+from .baseframe import BaseFrame
 from .frame import Frame
-
-# Enable logging
-logging.basicConfig(format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S')
-logging.getLogger(__name__).setLevel(logging.INFO)
 
 
 class Scom(object):
@@ -27,18 +23,15 @@ class Scom(object):
 
     def __init__(self):
         super(Scom, self).__init__()
-        self._ser = None
+        self._ser = None  # type: serial.Serial or None
         self._mutex = Lock()
         self._rxBuffer = bytearray()     # All bytes received go in here
-        pass
 
-    def initialize(self, com_port, baudrate='38400'):
+    def initialize(self, com_port: str, baudrate: str or int = '38400'):
         """Initializes the instance and connects to the given COM port.
 
         :param com_port Name of the COM port. Ex. '/dev/ttyUSB0', 'COM1', etc.
-        :type com_port str
         :param baudrate Baud rate of the COM port. Default value is '38400'
-        :type baudrate str
         """
         try:
             self._ser = serial.Serial(port=com_port,
@@ -54,7 +47,7 @@ class Scom(object):
         """Sets the time to wait for a message to be received."""
         self._ser.timeout = seconds
 
-    def write_frame(self, frame, rx_timeout_in_seconds=3.0):
+    def write_frame(self, frame: BaseFrame, rx_timeout_in_seconds=3.0):
         """Writes a frame to the SCOM interface
 
         :param frame Frame to send.
@@ -65,9 +58,9 @@ class Scom(object):
         self.log.debug('TX: ' + frame.buffer_as_hex_string())
         buffer = frame.copy_buffer()
 
-        lock_aquired = self._mutex.acquire(blocking=True, timeout=10)        # lock
+        lock_acquired = self._mutex.acquire(blocking=True, timeout=10)        # lock
         response_frame = Frame()
-        if lock_aquired:
+        if lock_acquired:
             try:
                 self.set_rx_timeout(rx_timeout_in_seconds)  # Set time to wait for the response
                 self._ser.write(buffer)
@@ -119,7 +112,7 @@ class Scom(object):
 
             wait_time -= fract_wait_time
 
-        if rx_data_size_total is 0:
+        if rx_data_size_total == 0:
             self.log.info('Warning: No response from device')
 
         return None

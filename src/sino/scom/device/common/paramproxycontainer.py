@@ -4,8 +4,6 @@
 import logging
 from sino.scom import defines as define
 
-logging.getLogger(__name__).setLevel(logging.INFO)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
-
 
 class ParamProxyContainer(object):
     """Parameter proxy holding Studer device parameters.

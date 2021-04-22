@@ -62,11 +62,11 @@ cdef extern from "scomlib/scom_data_link.h":
         scom_service_t service_id
         size_t data_length
         scom_error_t last_error
-        char * buffer
+        unsigned char * buffer
         size_t buffer_size
 
     # C-functions to be used in python code
-    void scom_initialize_frame(scom_frame_t* frame, char* buffer, size_t buffer_size)
+    void scom_initialize_frame(scom_frame_t* frame, unsigned char* buffer, size_t buffer_size)
     void scom_encode_request_frame(scom_frame_t* frame);
     void scom_decode_frame_header(scom_frame_t* frame);
     void scom_decode_frame_data(scom_frame_t* frame);

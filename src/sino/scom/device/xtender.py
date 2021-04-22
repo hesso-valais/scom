@@ -9,8 +9,6 @@ from ..frame import Frame as ScomFrame
 from .scomdevice import ScomDevice
 from .common.paramproxycontainer import ParamProxyContainer
 
-logging.getLogger(__name__).setLevel(logging.INFO)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
-
 
 class Xtender(ScomDevice):
     """Provides access to an Xtender.

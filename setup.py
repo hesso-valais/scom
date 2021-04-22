@@ -146,8 +146,8 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://www.studer-innotec.com',
-    project_urls={'Bug Tracker': 'https://github.com/studer-innotec/scom/issues',
-                  'Source Code': 'https://github.com/studer-innotec/scom',
+    project_urls={'Bug Tracker': 'https://github.com/hesso-valais/scom/issues',
+                  'Source Code': 'https://github.com/hesso-valais/scom',
                   },
 
     setup_requires=['setuptools', 'Cython'],
@@ -175,30 +175,6 @@ setup(
                            'scom/property.pyx'],
                   },
 
-    data_files=[
-        # First parameter is where it should be installed (relative paths or abs paths possible)
-        # Second parameter is which files (from inside the project) should be taken into the dist package.
-        #
-        # Files get installed on the root folder of the python install location (not in site-packages)
-
-        # Copy SCOM C library files during package installation. Files are necessary
-        # to build baseframe and property library later on the system.
-#        ('sino.scom.scomlib',
-#        ['src/sino/scom/scomlib/scom_data_link.c',
-#          'src/sino/scom/scomlib/scom_data_link.h',
-#          'src/sino/scom/scomlib/scom_init.c',
-#          'src/sino/scom/scomlib/scom_init.h',
-#          'src/sino/scom/scomlib/scom_port_c99.h',
-#          'src/sino/scom/scomlib/scom_property.c',
-#          'src/sino/scom/scomlib/scom_property.h',
-#          'src/sino/scom/scomlib/vc_stdint.h'],),
-
-        # Copy cython files to 'site-packages/sino/scom' folder during package installation.
-#        ('sino.scom', ['src/sino/scom/baseframe.pxd',
-#                       'src/sino/scom/baseframe.pyx',
-#                       'src/sino/scom/property.pyx', ])
-    ],
-
     license='MIT',
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -208,8 +184,8 @@ setup(
 
         'License :: OSI Approved :: MIT License',
 
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
 
         'Operating System :: OS Independent',
     ],

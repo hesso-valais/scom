@@ -17,3 +17,9 @@ from . import dman
 from . import device
 from .device.scomdevice import ScomDevice as Device
 from .device.devicefactory import DeviceFactory
+
+import logging
+
+# Do not output logs if logging module is not configured
+# See: https://stackoverflow.com/a/27017068
+logging.getLogger(__name__).addHandler(logging.NullHandler())

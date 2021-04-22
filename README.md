@@ -7,7 +7,7 @@ Python library to access Studer devices via an XCom-232i interface.
 The Package can be installed from the Python package manager.
 Simply execute in a console the following command:
 ```bash
-  $ pip3 install scom
+  $ pip install scom
 ```
 
 ## Examples

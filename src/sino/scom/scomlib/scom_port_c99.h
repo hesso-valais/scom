@@ -67,7 +67,7 @@ extern "C" {
  * used in the examples.
  */
 
-static INLINE void scom_write_le32(char *const p, const uint32_t data)
+static INLINE void scom_write_le32(unsigned char *const p, const uint32_t data)
 {
     *(p) = (data) & 0xFF;
     *(p+1) = (data >> 8) & 0xFF;
@@ -76,27 +76,27 @@ static INLINE void scom_write_le32(char *const p, const uint32_t data)
 }
 
 
-static INLINE uint32_t scom_read_le32(const char *const p)
+static INLINE uint32_t scom_read_le32(const unsigned char *const p)
 {
     return  ((*p) & 0xFF) | ((*(p+1) & 0xFF) << 8) |
             ((*(p+2) & 0xFF)<< 16) | ((*(p+3) & 0xFF) << 24) ;
 }
 
 
-static INLINE void scom_write_le16(char *const p, const uint16_t data)
+static INLINE void scom_write_le16(unsigned char *const p, const uint16_t data)
 {
     *(p) = (data) & 0xFF;
     *(p+1) = (data >> 8) & 0xFF;
 }
 
 
-static INLINE uint16_t scom_read_le16(const char *const p)
+static INLINE uint16_t scom_read_le16(const unsigned char *const p)
 {
     return ((*(p)) & 0xFF) | ((*(p+1) & 0xFF) << 8) ;
 }
 
 
-static INLINE float scom_read_le_float(const char *const p)
+static INLINE float scom_read_le_float(const unsigned char *const p)
 {
     /* this way of doing it is not portable.
        The union may not be aligned correctly.
@@ -113,7 +113,7 @@ static INLINE float scom_read_le_float(const char *const p)
 }
 
 
-static INLINE void scom_write_le_float(char *const p, float data)
+static INLINE void scom_write_le_float(unsigned char *const p, float data)
 {
     /* this way of doing it is not portable.
        The union may not be aligned correctly.
