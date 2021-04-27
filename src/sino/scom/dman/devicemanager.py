@@ -258,13 +258,13 @@ class DeviceManager(DeviceNotifier):
                 missing_device_address_list = self._get_missing_device_addresses(deviceCategory, device_list)
 
                 for missingDeviceAddress in missing_device_address_list:
-                    new_device = self._get_device_by_address(missingDeviceAddress)
-                    assert new_device
+                    missing_device = self._get_device_by_address(missingDeviceAddress)
+                    assert missing_device
 
                     self.log.info('Studer device disappeared: %s #%d' % (deviceCategory, missingDeviceAddress))
 
                     # Notify subscribers about the disappeared device
-                    self._notify_subscribers(device=new_device,
+                    self._notify_subscribers(device=missing_device,
                                              device_category=deviceCategory,
                                              connected=False)
 
