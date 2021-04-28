@@ -39,16 +39,17 @@ class DeviceManager(DeviceNotifier):
 
     def __init__(self, scom=None, config=None, address_scan_info=None, thread_monitor=None):
         """"""
-        if self._instance:
+        if type(self)._instance:
             assert False, 'Only one instance of this class is allowed'
         else:
             self._set_instance(self)
 
         # Attribute initialization
-        self._threadShouldRun = True            # type: bool
-        self._subscribers = []                  # type: [dict]
-        self._device = {}                       # type: {str, scom.Device}
-        self._scomRxErrorMessageSend = False    # type: bool
+        self._thread_should_run = True
+        self._thread_left_run_loop = False          # Set to true when _thread is leaving run loop
+        self._subscribers = []                      # type: [dict]
+        self._device = {}                           # type: {str, scom.Device}
+        self._scom_rx_error_message_send = False    # type: bool
 
         if scom:
             self._scom = scom
@@ -165,7 +166,7 @@ class DeviceManager(DeviceNotifier):
             assert False
 
     def stop(self):
-        self._threadShouldRun = False
+        self._thread_should_run = False
 
     @classmethod
     def get_number_of_instances(cls, device_category):
@@ -191,14 +192,14 @@ class DeviceManager(DeviceNotifier):
     def _run(self):
         self.log.info(type(self).__name__ + ' thread running...')
 
-        while self._threadShouldRun:
+        while self._thread_should_run:
 
             self._search_devices()
 
             self._check_scom_rx_errors()
 
             # Wait until next interval begins
-            if self._threadShouldRun:
+            if self._thread_should_run:
                 self._thread_sleep_interval(5)
 
         if self._scom:
@@ -206,6 +207,11 @@ class DeviceManager(DeviceNotifier):
             self._scom = None
 
         self.remove_all_devices()
+
+        # Clear reference to single instance
+        type(self)._instance = None
+
+        self._thread_left_run_loop = True
 
     def _thread_sleep_interval(self, sleep_interval_in_seconds, decr_value=0.2):
         """Tells the executing thread how long to sleep while being still reactive on _threadShouldRun attribute.
@@ -216,7 +222,7 @@ class DeviceManager(DeviceNotifier):
             time.sleep(decr_value)
             wait_time -= decr_value
             # Check if thread should leave run loop
-            if not self._threadShouldRun:
+            if not self._thread_should_run:
                 break
 
     def _get_device_by_address(self, device_address):
@@ -359,9 +365,9 @@ class DeviceManager(DeviceNotifier):
         after still more errors the application gets terminated.
         """
         msg = u'Scom bus no more responding!'
-        if self._scom.rxErrors > 50 and not self._scomRxErrorMessageSend:
+        if self._scom.rxErrors > 50 and not self._scom_rx_error_message_send:
             self.log.critical(msg)
-            self._scomRxErrorMessageSend = True
+            self._scom_rx_error_message_send = True
 
         if self._scom.rxErrors > 100:
             sys.exit(msg)
@@ -376,13 +382,25 @@ class DeviceManager(DeviceNotifier):
         self._device.clear()
         gc.collect()
 
+    def wait_on_manager_to_leave(self, timeout=3):
+        """Can be called to wait for the DeviceManager until it left the run loop.
+        """
+        wait_time = timeout
+        decr_value = 0.2
+
+        if self._thread_left_run_loop:
+            return
+
+        while wait_time > 0:
+            time.sleep(decr_value)
+            wait_time -= decr_value
+            if self._thread_left_run_loop:
+                break
+
     @classmethod
     def destroy(cls):
         """Destroys the actually running DeviceManager
         """
         if cls._instance:
             cls._instance.stop()
-            time.sleep(1.0)  # Wait thread to leave loop
-
-        # Clear reference to single instance
-        cls._instance = None
+            cls._instance.wait_on_manager_to_leave()  # Wait thread to leave loop
