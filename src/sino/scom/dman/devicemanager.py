@@ -30,7 +30,7 @@ class DeviceManager(DeviceNotifier):
     """
 
     # References single instance of this class.
-    _instance = None            # type: DeviceManager
+    _instance = None            # type: DeviceManager or None
 
     log = logging.getLogger(__name__)
 
@@ -39,7 +39,6 @@ class DeviceManager(DeviceNotifier):
 
     def __init__(self, scom=None, config=None, address_scan_info=None, thread_monitor=None):
         """"""
-
         if self._instance:
             assert False, 'Only one instance of this class is allowed'
         else:
@@ -190,7 +189,6 @@ class DeviceManager(DeviceNotifier):
             return
 
     def _run(self):
-
         self.log.info(type(self).__name__ + ' thread running...')
 
         while self._threadShouldRun:
@@ -199,13 +197,15 @@ class DeviceManager(DeviceNotifier):
 
             self._check_scom_rx_errors()
 
-#            if self._device[601]:
-#                bsp = self._device[601]
-#                bsp._test()
-
             # Wait until next interval begins
             if self._threadShouldRun:
                 self._thread_sleep_interval(5)
+
+        if self._scom:
+            self._scom.close()
+            self._scom = None
+
+        self.remove_all_devices()
 
     def _thread_sleep_interval(self, sleep_interval_in_seconds, decr_value=0.2):
         """Tells the executing thread how long to sleep while being still reactive on _threadShouldRun attribute.
@@ -272,7 +272,7 @@ class DeviceManager(DeviceNotifier):
                     self._device.pop(missingDeviceAddress)
                     need_garbage_collect = True
 
-        if need_garbage_collect:  # Garbage collect to update WeakValueDictionarys
+        if need_garbage_collect:  # Garbage collect to update WeakValueDictionaries
             gc.collect()
 
     def _search_device_category(self, device_category, address_scan_range):
@@ -346,7 +346,7 @@ class DeviceManager(DeviceNotifier):
 
         device_list = ScomDevice.get_instances_of_category(device_category)
 
-        for device in device_list:
+        for internal_id, device in device_list.items():
             if device.device_address not in device_address_list:
                 missing_device_address_list.append(device.device_address)
 
@@ -365,3 +365,24 @@ class DeviceManager(DeviceNotifier):
 
         if self._scom.rxErrors > 100:
             sys.exit(msg)
+
+    def remove_all_devices(self):
+        """Cleans up all SCOM devices and notifies subscribers about the removal.
+        """
+        for device_address, device in self._device.items():
+            # Notify subscribers that device is going to disappear
+            self._notify_subscribers(device=device,
+                                     connected=False)
+        self._device.clear()
+        gc.collect()
+
+    @classmethod
+    def destroy(cls):
+        """Destroys the actually running DeviceManager
+        """
+        if cls._instance:
+            cls._instance.stop()
+            time.sleep(1.0)  # Wait thread to leave loop
+
+        # Clear reference to single instance
+        cls._instance = None

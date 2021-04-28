@@ -22,6 +22,7 @@ class ScomDevice(object):
     __metaclass__ = ABCMeta
 
     # SCOM device types:
+    SD_UNKNOWN = 0
     SD_XTENDER = 1          # Inverter / Charger
     SD_COMPACT = 2          # Inverter / Charger
     SD_VARIO_TRACK = 3      # MPPT Solar charge controller
@@ -29,6 +30,7 @@ class ScomDevice(object):
     SD_VARIO_POWER = 5      # Battery Charge Controller
     SD_RCC = 6              # Remote Control Unit
     SD_BSP = 7              # Battery Status Processor
+    SD_MAX = 8
 
     __instanceCounter = {SD_XTENDER: WeakValueDictionary(),
                          SD_COMPACT: WeakValueDictionary(),
@@ -38,9 +40,18 @@ class ScomDevice(object):
                          SD_RCC: WeakValueDictionary(),
                          SD_BSP: WeakValueDictionary()}
 
+    device_categories = {'xtender': SD_XTENDER,
+                         'compact': SD_COMPACT,
+                         'vario-track': SD_VARIO_TRACK,
+                         'vario-string': SD_VARIO_POWER,
+                         'rcc': SD_RCC,
+                         'bsp': SD_BSP
+                         }
+
     log = logging.getLogger(__name__)
 
     def __init__(self, device_address):
+        super(ScomDevice, self).__init__()
         self._deviceAddress = device_address
 
     def _add_instance(self, device_type):
@@ -65,7 +76,7 @@ class ScomDevice(object):
                                                 self._read_attribute)   # ParamMirror to handle UNSAVED_VALUE_QSP values
 
     @classmethod
-    def get_device_type_by_device_category(cls, device_category):
+    def get_device_type_by_device_category(cls, device_category: str):
         """Convert from device category to device type.
 
         Example:
@@ -99,7 +110,7 @@ class ScomDevice(object):
         return len(cls.__instanceCounter[cls.get_device_type_by_device_category(device_category)])
 
     @classmethod
-    def get_instances_of_category(cls, device_category):
+    def get_instances_of_category(cls, device_category: str):
         """Returns a list of weak pointers to instances of a category.
         """
         return cls.__instanceCounter[cls.get_device_type_by_device_category(device_category)]

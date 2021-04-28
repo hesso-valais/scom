@@ -40,13 +40,11 @@ class TestScomClass(unittest.TestCase):
         with self.assertRaises(SystemExit):
             scom.initialize('/dev/ttyUSB99')
 
-        with self.assertRaises(AttributeError):
-            scom.set_rx_timeout(3)
+        self.assertFalse(scom.set_rx_timeout(3))
 
         tx_frame = Frame()
 
-        with self.assertRaises(AttributeError):
-            scom.write_frame(tx_frame)
+        self.assertIsNone(scom.write_frame(tx_frame))
 
     def test_valid_serial_conn(self):
         from sino.scom import Scom
