@@ -1,5 +1,7 @@
 # SCOM
 ![python-version](https://img.shields.io/badge/python-3.x-blue.svg?style=flat)
+![version](https://img.shields.io/pypi/v/scom.svg)
+![coverage](docs/images/coverage.svg)
 
 Python library to access Studer devices via an XCom-232i interface.
 

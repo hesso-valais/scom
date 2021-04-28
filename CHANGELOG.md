@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.3 - (2021-04-28)
+- Added tests for `dman.DeviceManager` class
+- Bugfixes in `dman.DeviceManager` class
+
 ## 0.7.2 - (2021-04-22)
 - Added tests
 - Updated C library code to support newer MSVC compilers under Windows
