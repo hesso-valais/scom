@@ -37,7 +37,8 @@ class DeviceManager(DeviceNotifier):
     _device_address_category = ('xtender', 'vario_power', 'rcc', 'bsp')
     DEFAULT_RX_BUFFER_SIZE = 1024
 
-    def __init__(self, scom=None, config=None, address_scan_info=None, thread_monitor=None):
+    def __init__(self, scom=None, config=None, address_scan_info=None,
+                 control_interval_in_seconds=5.0, thread_monitor=None):
         """"""
         if self._instance:
             assert False, 'Only one instance of this class is allowed'
@@ -47,8 +48,9 @@ class DeviceManager(DeviceNotifier):
         # Attribute initialization
         self._thread_should_run = True
         self._thread_left_run_loop = False          # Set to true when _thread is leaving run loop
+        self._control_interval_in_seconds = control_interval_in_seconds
         self._subscribers = []                      # type: [dict]
-        self._device = {}                           # type: {str, scom.Device}
+        self._device = {}                           # type: {int, scom.Device}
         self._scom_rx_error_message_send = False    # type: bool
 
         if scom:
@@ -118,7 +120,7 @@ class DeviceManager(DeviceNotifier):
         """
         # super(DeviceManager, self).unsubscribe(device_subscriber)
         for index, subscriber in enumerate(self._subscribers):
-            if subscriber == device_subscriber:
+            if subscriber['subscriber'] == device_subscriber:
                 self._subscribers.pop(index)
                 return True
         return False
@@ -204,7 +206,7 @@ class DeviceManager(DeviceNotifier):
 
             # Wait until next interval begins
             if self._thread_should_run:
-                self._thread_sleep_interval(5)
+                self._thread_sleep_interval(self._control_interval_in_seconds)
 
         if self._scom:
             self._scom.close()
@@ -240,42 +242,33 @@ class DeviceManager(DeviceNotifier):
         assert len(self._address_scan_info), 'No device categories to scan found!'
         need_garbage_collect = False
 
-        for deviceCategory, addressScanRange in self._address_scan_info.items():
-            device_list = self._search_device_category(deviceCategory, addressScanRange)
+        for device_category, addressScanRange in self._address_scan_info.items():
+            device_list = self._search_device_category(device_category, addressScanRange)
 
             nbr_of_devices_found = len(device_list) if device_list else 0
 
             if device_list:
-                for deviceAddress in device_list:
+                for device_address in device_list:
                     # Check if device is present in device dict
-                    if deviceAddress in self._device:
+                    if device_address in self._device:
                         pass
                     else:
-                        # Let the factory create a new SCOM device representation
-                        self._device[deviceAddress] = device.DeviceFactory.create(deviceCategory, deviceAddress)
-                        self._device[deviceAddress].class_initialize(self._scom)
-
-                        self.log.info('Found new studer device: %s #%d' % (deviceCategory, deviceAddress))
-
-                        # Notify subscribers about the device found
-                        self._notify_subscribers(device=self._device[deviceAddress],
-                                                 device_category=deviceCategory,
-                                                 connected=True)
+                        self._add_new_device(device_category, device_address)
 
             # Compare number of instantiated devices (per category/group) and remove disappeared devices from list
-            if nbr_of_devices_found < self.get_number_of_instances(deviceCategory):
+            if nbr_of_devices_found < self.get_number_of_instances(device_category):
                 self.log.warning(u'Some ScomDevices seem to be disappeared!')
-                missing_device_address_list = self._get_missing_device_addresses(deviceCategory, device_list)
+                missing_device_address_list = self._get_missing_device_addresses(device_category, device_list)
 
                 for missingDeviceAddress in missing_device_address_list:
                     missing_device = self._get_device_by_address(missingDeviceAddress)
                     assert missing_device
 
-                    self.log.info('Studer device disappeared: %s #%d' % (deviceCategory, missingDeviceAddress))
+                    self.log.info('Studer device disappeared: %s #%d' % (device_category, missingDeviceAddress))
 
                     # Notify subscribers about the disappeared device
                     self._notify_subscribers(device=missing_device,
-                                             device_category=deviceCategory,
+                                             device_category=device_category,
                                              connected=False)
 
                     # Remove studer device from list
@@ -285,11 +278,24 @@ class DeviceManager(DeviceNotifier):
         if need_garbage_collect:  # Garbage collect to update WeakValueDictionaries
             gc.collect()
 
-    def _search_device_category(self, device_category, address_scan_range):
+    def _add_new_device(self, device_category, device_address):
+        """Adds a new ScomDevice an notifies subscribers.
+        """
+        # Let the factory create a new SCOM device representation
+        self._device[device_address] = device.DeviceFactory.create(device_category, device_address)
+        self._device[device_address].class_initialize(self._scom)
+
+        self.log.info('Found new studer device: %s #%d' % (device_category, device_address))
+
+        # Notify subscribers about the device found
+        self._notify_subscribers(device=self._device[device_address],
+                                 device_category=device_category,
+                                 connected=True)
+
+    def _search_device_category(self, device_category, address_scan_range) -> [int]:
         """Searches for devices of a specific category on the SCOM interface.
 
         :return A list of device address found.
-        :type [int]
         """
         device_list = []
         device_start_address = int(address_scan_range[0])

@@ -6,10 +6,10 @@ import os
 import logging
 import time
 import unittest
-
 import gc
 
 from tests.sino.scom.paths import update_working_directory
+from sino import scom
 
 update_working_directory()  # Needed when: 'pipenv run python -m unittest tests/sino/scom/{this_file}.py'
 
@@ -29,6 +29,46 @@ class ScomDeviceHelper(object):
             cls.log.info('Waiting for Xtenders to disappear...')
             time.sleep(0.5)
             gc.collect()
+
+
+class FakeScomDevice(object):
+    def __init__(self, device_type=None):
+        super(FakeScomDevice, self).__init__()
+        self.device_type = device_type
+
+    def set_device_type(self, device_type):
+        self.device_type = device_type
+
+
+class ScomDevicesObserver(scom.dman.DeviceSubscriber):
+    """Receives device notifications if DeviceManager finds Studer devices.
+    """
+
+    log = logging.getLogger(__name__)
+
+    def __init__(self):
+        super(ScomDevicesObserver, self).__init__()
+
+        self.device_disconnected = False
+        self.device_disconnected_device_address = 0
+
+    def on_device_connected(self, device):
+        from sino import scom
+
+        # Check if it is an Xtender
+        if device.device_type == scom.Device.SD_XTENDER:
+            self.log.info('Xtender found!')
+            software_version = device.software_version
+            self.log.info('Xtender Version: %d.%d.%d' % (software_version['major'],
+                                                         software_version['minor'],
+                                                         software_version['patch'])
+                          )
+        else:
+            self.log.info('Other device type detected')
+
+    def on_device_disconnected(self, device):
+        self.device_disconnected = True
+        self.device_disconnected_device_address = device.device_address
 
 
 class TestDeviceManagerObjectCreation(unittest.TestCase):
@@ -115,22 +155,14 @@ class TestDeviceManagerObjectCreation(unittest.TestCase):
         from sino.scom import dman
         from sino.scom.device import ScomDevice
 
-        class FakeDevice(object):
-            def __init__(self, device_type=None):
-                super(FakeDevice, self).__init__()
-                self.device_type = device_type
-
-            def set_device_type(self, device_type):
-                self.device_type = device_type
-
         for device_name, device_type in ScomDevice.device_categories.items():
-            dman.DeviceManager.get_device_category_by_device(FakeDevice(device_type))
+            dman.DeviceManager.get_device_category_by_device(FakeScomDevice(device_type))
 
         with self.assertRaises(AssertionError):
-            dman.DeviceManager.get_device_category_by_device(FakeDevice(ScomDevice.SD_UNKNOWN))
+            dman.DeviceManager.get_device_category_by_device(FakeScomDevice(ScomDevice.SD_UNKNOWN))
 
         with self.assertRaises(AssertionError):
-            dman.DeviceManager.get_device_category_by_device(FakeDevice(ScomDevice.SD_MAX))
+            dman.DeviceManager.get_device_category_by_device(FakeScomDevice(ScomDevice.SD_MAX))
 
 
 class TestDeviceManagerClassForceDelete(unittest.TestCase):
@@ -207,7 +239,9 @@ class TestDeviceManagerClass(unittest.TestCase):
         logging.basicConfig(level=logging.INFO)
 
         config = {'scom': {'interface': self.INTERFACE, 'baudrate': self.BAUDRATE},
-                  'scom-device-address-scan': {'xtender': [101, 105]}
+                  'scom-device-address-scan': {'xtender': [101, 105],
+                                               'vario_power': [4240, 4242]      # Fake devices (added manually)
+                                               }
                   }
 
         # Delete any previously created DeviceManager
@@ -216,7 +250,7 @@ class TestDeviceManagerClass(unittest.TestCase):
         ScomDeviceHelper.wait_devices_disappeared()
 
         # Create new device manager
-        self.device_manager = dman.DeviceManager(config=config)
+        self.device_manager = dman.DeviceManager(config=config, control_interval_in_seconds=1.0)
 
     def tearDown(self) -> None:
         self.device_manager.destroy()
@@ -254,35 +288,27 @@ class TestDeviceManagerClass(unittest.TestCase):
     def test_subscribe_unsubscribe(self):
         from sino import scom
 
-        class ScomDevicesObserver(scom.dman.DeviceSubscriber):
-            """Receives device notifications if DeviceManager finds Studer devices.
-            """
-
-            log = logging.getLogger(__name__)
-
-            def __init__(self):
-                super(ScomDevicesObserver, self).__init__()
-
-            def on_device_connected(self, device):
-
-                # Check if it is an Xtender
-                if device.device_type == scom.Device.SD_XTENDER:
-                    self.log.info('Xtender found!')
-                    software_version = device.software_version
-                    self.log.info('Xtender Version: %d.%d.%d' % (software_version['major'],
-                                                                 software_version['minor'],
-                                                                 software_version['patch'])
-                                  )
-                else:
-                    print('Other device type detected')
-
-            def on_device_disconnected(self, device):
-                pass
         observer = ScomDevicesObserver()
         orphaned = ScomDevicesObserver()
 
         scom.dman.DeviceManager.instance().subscribe(observer)
 
         time.sleep(1)
-        scom.dman.DeviceManager.instance().unsubscribe(observer)
-        scom.dman.DeviceManager.instance().unsubscribe(orphaned)
+        self.assertTrue(scom.dman.DeviceManager.instance().unsubscribe(observer))
+        self.assertFalse(scom.dman.DeviceManager.instance().unsubscribe(orphaned))
+
+    def test_scomdevice_disappeared(self):
+        from sino import scom
+
+        observer = ScomDevicesObserver()
+
+        self.device_manager._add_new_device('vario_power', 4242)
+
+        # Note: Subscribe after adding new device
+        scom.dman.DeviceManager.instance().subscribe(observer)
+
+        time.sleep(2)
+
+        self.assertTrue(observer.device_disconnected)
+        self.assertEqual(observer.device_disconnected_device_address, 4242)
+

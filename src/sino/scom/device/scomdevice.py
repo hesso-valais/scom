@@ -43,7 +43,8 @@ class ScomDevice(object):
     device_categories = {'xtender': SD_XTENDER,
                          'compact': SD_COMPACT,
                          'vario-track': SD_VARIO_TRACK,
-                         'vario-string': SD_VARIO_POWER,
+                         'vario-string': SD_VARIO_STRING,
+                         'vario-power': SD_VARIO_POWER,
                          'rcc': SD_RCC,
                          'bsp': SD_BSP
                          }
@@ -123,7 +124,7 @@ class ScomDevice(object):
         This method is used by the base class (ScomDevice) to receive the right
         SCOM interface.
         """
-        pass
+        raise NotImplementedError
 
     @property
     @abstractmethod
@@ -133,16 +134,16 @@ class ScomDevice(object):
         See 'SD_XTENDER' and following constants.
 
         :return The device type.
-        :type return enumerate
+        :rtype enumerate
         """
-        pass
+        raise NotImplementedError
 
     @property
     def device_address(self):
         """Returns the device address.
 
         :return The device address
-        :type return int
+        :rtype int
         """
         return self._deviceAddress
 
@@ -152,9 +153,9 @@ class ScomDevice(object):
         """Returns the software version.
 
         :return The Software version as dict {major, minor, patch}
-        :type return dict
+        :rtype dict
         """
-        pass
+        raise NotImplementedError
 
     @classmethod
     def _property_format_to_value_size(cls, property_format):
