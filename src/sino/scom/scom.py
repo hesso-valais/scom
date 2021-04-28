@@ -43,11 +43,14 @@ class Scom(object):
             self.log.info(msg)
             exit()
 
-    def set_rx_timeout(self, seconds):
+    def set_rx_timeout(self, seconds: int) -> bool:
         """Sets the time to wait for a message to be received."""
-        self._ser.timeout = seconds
+        if self._ser:
+            self._ser.timeout = seconds
+            return True
+        return False
 
-    def write_frame(self, frame: BaseFrame, rx_timeout_in_seconds=3.0):
+    def write_frame(self, frame: BaseFrame, rx_timeout_in_seconds=3.0) -> Frame or None:
         """Writes a frame to the SCOM interface
 
         :param frame Frame to send.
@@ -55,6 +58,9 @@ class Scom(object):
         :param rx_timeout_in_seconds Maximum time to wait for the response frame.
         :type rx_timeout_in_seconds float
         """
+        if not self._ser:
+            return None
+
         self.log.debug('TX: ' + frame.buffer_as_hex_string())
         buffer = frame.copy_buffer()
 
@@ -73,12 +79,15 @@ class Scom(object):
             self.log.error('Could not lock mutex!')
         return response_frame
 
-    def _read_frame(self, wait_time=1.0):
+    def _read_frame(self, wait_time=1.0) -> Frame or None:
         """Reads a frame from the SCOM interface
 
         :param wait_time Time in seconds to wait
         :type wait_time float
         """
+        if not self._ser:
+            return None
+
         response_frame = Frame()
         rx_data_size_total = 0          # Size of data received in this turn
 
@@ -116,3 +125,8 @@ class Scom(object):
             self.log.info('Warning: No response from device')
 
         return None
+
+    def close(self):
+        if self._ser:
+            self._ser.close()
+            self._ser = None

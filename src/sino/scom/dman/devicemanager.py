@@ -30,26 +30,28 @@ class DeviceManager(DeviceNotifier):
     """
 
     # References single instance of this class.
-    _instance = None            # type: DeviceManager
+    _instance = None            # type: DeviceManager or None
 
     log = logging.getLogger(__name__)
 
-    _deviceAddressCategory = ('xtender', 'vario_power', 'rcc', 'bsp')
+    _device_address_category = ('xtender', 'vario_power', 'rcc', 'bsp')
     DEFAULT_RX_BUFFER_SIZE = 1024
 
-    def __init__(self, scom=None, config=None, address_scan_info=None, thread_monitor=None):
+    def __init__(self, scom=None, config=None, address_scan_info=None,
+                 control_interval_in_seconds=5.0, thread_monitor=None):
         """"""
-
         if self._instance:
             assert False, 'Only one instance of this class is allowed'
         else:
             self._set_instance(self)
 
         # Attribute initialization
-        self._threadShouldRun = True            # type: bool
-        self._subscribers = []                  # type: [dict]
-        self._device = {}                       # type: {str, scom.Device}
-        self._scomRxErrorMessageSend = False    # type: bool
+        self._thread_should_run = True
+        self._thread_left_run_loop = False          # Set to true when _thread is leaving run loop
+        self._control_interval_in_seconds = control_interval_in_seconds
+        self._subscribers = []                      # type: [dict]
+        self._device = {}                           # type: {int, scom.Device}
+        self._scom_rx_error_message_send = False    # type: bool
 
         if scom:
             self._scom = scom
@@ -63,18 +65,22 @@ class DeviceManager(DeviceNotifier):
             self._scom = studer_com
 
         if address_scan_info:
-            self._addressScanInfo = address_scan_info
+            self._address_scan_info = address_scan_info
         else:
             assert config, 'In case \'address_scan_info\' is not set the parameter config must be given!'
             assert config.get('scom-device-address-scan'), 'Missing section \'scom-device-address-scan\' in config'
 
             # Load device address to scan
-            self._addressScanInfo = {}
-            for deviceTypeName in self._deviceAddressCategory:
+            self._address_scan_info = {}
+            for device_type_name in self._device_address_category:
                 # deviceTypeName ex. 'vario_power' or 'rcc'
-                if deviceTypeName in config['scom-device-address-scan']:
-                    self._addressScanInfo[deviceTypeName] = config['scom-device-address-scan'][deviceTypeName]
-                    assert len(self._addressScanInfo[deviceTypeName]) == 2, 'Need two values for scan info'
+                if device_type_name in config['scom-device-address-scan']:
+                    self._address_scan_info[device_type_name] = config['scom-device-address-scan'][device_type_name]
+
+        # Do some checks on 'self._address_scan_info'
+        assert isinstance(self._address_scan_info, dict), 'Address scan info must be a dictionary'
+        for device_type_name, scan_info in self._address_scan_info.items():
+            assert len(scan_info) == 2, 'Need two values for scan info'
 
         self._thread = Thread(target=self._run_with_exception_logging, name=self.__class__.__name__)
         # Close thread as soon as main thread exits
@@ -114,7 +120,7 @@ class DeviceManager(DeviceNotifier):
         """
         # super(DeviceManager, self).unsubscribe(device_subscriber)
         for index, subscriber in enumerate(self._subscribers):
-            if subscriber == device_subscriber:
+            if subscriber['subscriber'] == device_subscriber:
                 self._subscribers.pop(index)
                 return True
         return False
@@ -166,7 +172,7 @@ class DeviceManager(DeviceNotifier):
             assert False
 
     def stop(self):
-        self._threadShouldRun = False
+        self._thread_should_run = False
 
     @classmethod
     def get_number_of_instances(cls, device_category):
@@ -190,22 +196,28 @@ class DeviceManager(DeviceNotifier):
             return
 
     def _run(self):
-
         self.log.info(type(self).__name__ + ' thread running...')
 
-        while self._threadShouldRun:
+        while self._thread_should_run:
 
             self._search_devices()
 
             self._check_scom_rx_errors()
 
-#            if self._device[601]:
-#                bsp = self._device[601]
-#                bsp._test()
-
             # Wait until next interval begins
-            if self._threadShouldRun:
-                self._thread_sleep_interval(5)
+            if self._thread_should_run:
+                self._thread_sleep_interval(self._control_interval_in_seconds)
+
+        if self._scom:
+            self._scom.close()
+            self._scom = None
+
+        self.remove_all_devices()
+
+        # Clear reference to single instance
+        type(self)._instance = None
+
+        self._thread_left_run_loop = True
 
     def _thread_sleep_interval(self, sleep_interval_in_seconds, decr_value=0.2):
         """Tells the executing thread how long to sleep while being still reactive on _threadShouldRun attribute.
@@ -216,7 +228,7 @@ class DeviceManager(DeviceNotifier):
             time.sleep(decr_value)
             wait_time -= decr_value
             # Check if thread should leave run loop
-            if not self._threadShouldRun:
+            if not self._thread_should_run:
                 break
 
     def _get_device_by_address(self, device_address):
@@ -227,59 +239,63 @@ class DeviceManager(DeviceNotifier):
     def _search_devices(self):
         """Searches on the SCOM bus for devices.
         """
-        assert len(self._addressScanInfo), 'No device categories to scan found!'
+        assert len(self._address_scan_info), 'No device categories to scan found!'
         need_garbage_collect = False
 
-        for deviceCategory, addressScanRange in self._addressScanInfo.items():
-            device_list = self._search_device_category(deviceCategory, addressScanRange)
+        for device_category, addressScanRange in self._address_scan_info.items():
+            device_list = self._search_device_category(device_category, addressScanRange)
 
             nbr_of_devices_found = len(device_list) if device_list else 0
 
             if device_list:
-                for deviceAddress in device_list:
+                for device_address in device_list:
                     # Check if device is present in device dict
-                    if deviceAddress in self._device:
+                    if device_address in self._device:
                         pass
                     else:
-                        # Let the factory create a new SCOM device representation
-                        self._device[deviceAddress] = device.DeviceFactory.create(deviceCategory, deviceAddress)
-                        self._device[deviceAddress].class_initialize(self._scom)
-
-                        self.log.info('Found new studer device: %s #%d' % (deviceCategory, deviceAddress))
-
-                        # Notify subscribers about the device found
-                        self._notify_subscribers(device=self._device[deviceAddress],
-                                                 device_category=deviceCategory,
-                                                 connected=True)
+                        self._add_new_device(device_category, device_address)
 
             # Compare number of instantiated devices (per category/group) and remove disappeared devices from list
-            if nbr_of_devices_found < self.get_number_of_instances(deviceCategory):
+            if nbr_of_devices_found < self.get_number_of_instances(device_category):
                 self.log.warning(u'Some ScomDevices seem to be disappeared!')
-                missing_device_address_list = self._get_missing_device_addresses(deviceCategory, device_list)
+                missing_device_address_list = self._get_missing_device_addresses(device_category, device_list)
 
                 for missingDeviceAddress in missing_device_address_list:
-                    new_device = self._get_device_by_address(missingDeviceAddress)
-                    assert new_device
+                    missing_device = self._get_device_by_address(missingDeviceAddress)
+                    assert missing_device
 
-                    self.log.info('Studer device disappeared: %s #%d' % (deviceCategory, missingDeviceAddress))
+                    self.log.info('Studer device disappeared: %s #%d' % (device_category, missingDeviceAddress))
 
                     # Notify subscribers about the disappeared device
-                    self._notify_subscribers(device=new_device,
-                                             device_category=deviceCategory,
+                    self._notify_subscribers(device=missing_device,
+                                             device_category=device_category,
                                              connected=False)
 
                     # Remove studer device from list
                     self._device.pop(missingDeviceAddress)
                     need_garbage_collect = True
 
-        if need_garbage_collect:  # Garbage collect to update WeakValueDictionarys
+        if need_garbage_collect:  # Garbage collect to update WeakValueDictionaries
             gc.collect()
 
-    def _search_device_category(self, device_category, address_scan_range):
+    def _add_new_device(self, device_category, device_address):
+        """Adds a new ScomDevice an notifies subscribers.
+        """
+        # Let the factory create a new SCOM device representation
+        self._device[device_address] = device.DeviceFactory.create(device_category, device_address)
+        self._device[device_address].class_initialize(self._scom)
+
+        self.log.info('Found new studer device: %s #%d' % (device_category, device_address))
+
+        # Notify subscribers about the device found
+        self._notify_subscribers(device=self._device[device_address],
+                                 device_category=device_category,
+                                 connected=True)
+
+    def _search_device_category(self, device_category, address_scan_range) -> [int]:
         """Searches for devices of a specific category on the SCOM interface.
 
         :return A list of device address found.
-        :type [int]
         """
         device_list = []
         device_start_address = int(address_scan_range[0])
@@ -318,7 +334,7 @@ class DeviceManager(DeviceNotifier):
     def _get_search_object_id(self, device_category):
         """Returns the object id to be used to search for a device.
         """
-        assert device_category in self._deviceAddressCategory, 'Category name not in list!'
+        assert device_category in self._device_address_category, 'Category name not in list!'
 
         if device_category in ('xtender',):
             search_object_id = 3000      # User info: Battery voltage
@@ -346,7 +362,7 @@ class DeviceManager(DeviceNotifier):
 
         device_list = ScomDevice.get_instances_of_category(device_category)
 
-        for device in device_list:
+        for internal_id, device in device_list.items():
             if device.device_address not in device_address_list:
                 missing_device_address_list.append(device.device_address)
 
@@ -359,9 +375,42 @@ class DeviceManager(DeviceNotifier):
         after still more errors the application gets terminated.
         """
         msg = u'Scom bus no more responding!'
-        if self._scom.rxErrors > 50 and not self._scomRxErrorMessageSend:
+        if self._scom.rxErrors > 50 and not self._scom_rx_error_message_send:
             self.log.critical(msg)
-            self._scomRxErrorMessageSend = True
+            self._scom_rx_error_message_send = True
 
         if self._scom.rxErrors > 100:
             sys.exit(msg)
+
+    def remove_all_devices(self):
+        """Cleans up all SCOM devices and notifies subscribers about the removal.
+        """
+        for device_address, device in self._device.items():
+            # Notify subscribers that device is going to disappear
+            self._notify_subscribers(device=device,
+                                     connected=False)
+        self._device.clear()
+        gc.collect()
+
+    def wait_on_manager_to_leave(self, timeout=3):
+        """Can be called to wait for the DeviceManager until it left the run loop.
+        """
+        wait_time = timeout
+        decr_value = 0.2
+
+        if self._thread_left_run_loop:
+            return
+
+        while wait_time > 0:
+            time.sleep(decr_value)
+            wait_time -= decr_value
+            if self._thread_left_run_loop:
+                break
+
+    @classmethod
+    def destroy(cls):
+        """Destroys the actually running DeviceManager
+        """
+        if cls._instance:
+            cls._instance.stop()
+            cls._instance.wait_on_manager_to_leave()  # Wait thread to leave loop

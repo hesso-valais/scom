@@ -3,3 +3,6 @@
 exclude_lines =
     pragma: no cover
     if __name__ == ['"]__main__['"]:
+
+    # Don't complain if tests don't hit defensive assertion code
+    raise NotImplementedError
