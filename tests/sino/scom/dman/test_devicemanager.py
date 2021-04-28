@@ -111,6 +111,27 @@ class TestDeviceManagerObjectCreation(unittest.TestCase):
         dman.DeviceManager.destroy()
         scom.close()
 
+    def test_get_device_category_by_device(self):
+        from sino.scom import dman
+        from sino.scom.device import ScomDevice
+
+        class FakeDevice(object):
+            def __init__(self, device_type=None):
+                super(FakeDevice, self).__init__()
+                self.device_type = device_type
+
+            def set_device_type(self, device_type):
+                self.device_type = device_type
+
+        for device_name, device_type in ScomDevice.device_categories.items():
+            dman.DeviceManager.get_device_category_by_device(FakeDevice(device_type))
+
+        with self.assertRaises(AssertionError):
+            dman.DeviceManager.get_device_category_by_device(FakeDevice(ScomDevice.SD_UNKNOWN))
+
+        with self.assertRaises(AssertionError):
+            dman.DeviceManager.get_device_category_by_device(FakeDevice(ScomDevice.SD_MAX))
+
 
 class TestDeviceManagerClassForceDelete(unittest.TestCase):
     """Tests dman.DeviceManager class.
