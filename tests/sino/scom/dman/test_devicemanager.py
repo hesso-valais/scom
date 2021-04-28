@@ -37,6 +37,9 @@ class TestDeviceManagerObjectCreation(unittest.TestCase):
 
     INTERFACE = '/dev/ttyUSB0'
     BAUDRATE = '38400'
+    CONFIG = {'scom': {'interface': INTERFACE, 'baudrate': BAUDRATE},
+              'scom-device-address-scan': {'xtender': [101, 105]}
+              }
 
     log = logging.getLogger(__name__)
 
@@ -75,6 +78,38 @@ class TestDeviceManagerObjectCreation(unittest.TestCase):
 
         del device_manager
         gc.collect()
+
+    def test_scom_already_present(self):
+        from sino.scom import Scom
+        from sino.scom import dman
+
+        scom = Scom()
+        scom.initialize(self.INTERFACE, int(self.BAUDRATE))
+
+        dman.DeviceManager(scom=scom, config=self.CONFIG, address_scan_info=self.CONFIG['scom-device-address-scan'])
+
+        dman.DeviceManager.destroy()
+        scom.close()
+
+    def test_thread_monitor(self):
+
+        class ThreadMon(object):
+            def register(self, instance):
+                pass
+
+        from sino.scom import Scom
+        from sino.scom import dman
+
+        scom = Scom()
+        scom.initialize(self.INTERFACE, int(self.BAUDRATE))
+
+        device_manager = dman.DeviceManager(scom=scom, config=self.CONFIG, thread_monitor=ThreadMon())
+
+        # Check instance getter
+        self.assertTrue(device_manager == dman.DeviceManager.instance())
+
+        dman.DeviceManager.destroy()
+        scom.close()
 
 
 class TestDeviceManagerClassForceDelete(unittest.TestCase):
@@ -194,3 +229,39 @@ class TestDeviceManagerClass(unittest.TestCase):
         # Create new device manager
         with self.assertRaises(AssertionError):
             dman.DeviceManager(config=config)
+
+    def test_subscribe_unsubscribe(self):
+        from sino import scom
+
+        class ScomDevicesObserver(scom.dman.DeviceSubscriber):
+            """Receives device notifications if DeviceManager finds Studer devices.
+            """
+
+            log = logging.getLogger(__name__)
+
+            def __init__(self):
+                super(ScomDevicesObserver, self).__init__()
+
+            def on_device_connected(self, device):
+
+                # Check if it is an Xtender
+                if device.device_type == scom.Device.SD_XTENDER:
+                    self.log.info('Xtender found!')
+                    software_version = device.software_version
+                    self.log.info('Xtender Version: %d.%d.%d' % (software_version['major'],
+                                                                 software_version['minor'],
+                                                                 software_version['patch'])
+                                  )
+                else:
+                    print('Other device type detected')
+
+            def on_device_disconnected(self, device):
+                pass
+        observer = ScomDevicesObserver()
+        orphaned = ScomDevicesObserver()
+
+        scom.dman.DeviceManager.instance().subscribe(observer)
+
+        time.sleep(1)
+        scom.dman.DeviceManager.instance().unsubscribe(observer)
+        scom.dman.DeviceManager.instance().unsubscribe(orphaned)

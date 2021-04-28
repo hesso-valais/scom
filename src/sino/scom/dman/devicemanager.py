@@ -34,12 +34,12 @@ class DeviceManager(DeviceNotifier):
 
     log = logging.getLogger(__name__)
 
-    _deviceAddressCategory = ('xtender', 'vario_power', 'rcc', 'bsp')
+    _device_address_category = ('xtender', 'vario_power', 'rcc', 'bsp')
     DEFAULT_RX_BUFFER_SIZE = 1024
 
     def __init__(self, scom=None, config=None, address_scan_info=None, thread_monitor=None):
         """"""
-        if type(self)._instance:
+        if self._instance:
             assert False, 'Only one instance of this class is allowed'
         else:
             self._set_instance(self)
@@ -63,18 +63,22 @@ class DeviceManager(DeviceNotifier):
             self._scom = studer_com
 
         if address_scan_info:
-            self._addressScanInfo = address_scan_info
+            self._address_scan_info = address_scan_info
         else:
             assert config, 'In case \'address_scan_info\' is not set the parameter config must be given!'
             assert config.get('scom-device-address-scan'), 'Missing section \'scom-device-address-scan\' in config'
 
             # Load device address to scan
-            self._addressScanInfo = {}
-            for deviceTypeName in self._deviceAddressCategory:
+            self._address_scan_info = {}
+            for device_type_name in self._device_address_category:
                 # deviceTypeName ex. 'vario_power' or 'rcc'
-                if deviceTypeName in config['scom-device-address-scan']:
-                    self._addressScanInfo[deviceTypeName] = config['scom-device-address-scan'][deviceTypeName]
-                    assert len(self._addressScanInfo[deviceTypeName]) == 2, 'Need two values for scan info'
+                if device_type_name in config['scom-device-address-scan']:
+                    self._address_scan_info[device_type_name] = config['scom-device-address-scan'][device_type_name]
+
+        # Do some checks on 'self._address_scan_info'
+        assert isinstance(self._address_scan_info, dict), 'Address scan info must be a dictionary'
+        for device_type_name, scan_info in self._address_scan_info.items():
+            assert len(scan_info) == 2, 'Need two values for scan info'
 
         self._thread = Thread(target=self._run_with_exception_logging, name=self.__class__.__name__)
         # Close thread as soon as main thread exits
@@ -233,10 +237,10 @@ class DeviceManager(DeviceNotifier):
     def _search_devices(self):
         """Searches on the SCOM bus for devices.
         """
-        assert len(self._addressScanInfo), 'No device categories to scan found!'
+        assert len(self._address_scan_info), 'No device categories to scan found!'
         need_garbage_collect = False
 
-        for deviceCategory, addressScanRange in self._addressScanInfo.items():
+        for deviceCategory, addressScanRange in self._address_scan_info.items():
             device_list = self._search_device_category(deviceCategory, addressScanRange)
 
             nbr_of_devices_found = len(device_list) if device_list else 0
@@ -324,7 +328,7 @@ class DeviceManager(DeviceNotifier):
     def _get_search_object_id(self, device_category):
         """Returns the object id to be used to search for a device.
         """
-        assert device_category in self._deviceAddressCategory, 'Category name not in list!'
+        assert device_category in self._device_address_category, 'Category name not in list!'
 
         if device_category in ('xtender',):
             search_object_id = 3000      # User info: Battery voltage
