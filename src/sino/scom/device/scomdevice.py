@@ -10,6 +10,7 @@ from ..property import Property
 from ..frame import Frame as ScomFrame
 from ..defines import *
 from .common.paramproxycontainer import ParamProxyContainer
+from ..exception import ReadException
 
 
 # Links:
@@ -280,11 +281,17 @@ class ScomDevice(object):
                     value_size = response_frame.response_value_size()
                     value = response_frame[24:24 + value_size]
                 elif response_frame.is_data_error_flag_set():
-                    self.log.warning('Warning: Error flag set in response frame!')
+                    msg = 'Error flag set in response frame!'
+                    self.log.warning(msg)
+                    raise ReadException(msg)
             else:
-                self.log.warning('No response frame received!')
+                msg = 'No response frame received!'
+                self.log.warning(msg)
+                raise ReadException(msg)
         else:
-            self.log.warning('Request frame not valid')
+            msg = 'Request frame not valid'
+            self.log.warning(msg)
+            ReadException(msg)
 
         return value
 
@@ -337,11 +344,17 @@ class ScomDevice(object):
                     value_size = response_frame.response_value_size()
                     value = response_frame[24:24 + value_size]
                 elif response_frame.is_data_error_flag_set():
-                    self.log.warning('Warning: Error flag set in response frame!')
+                    msg = 'Error flag set in response frame!'
+                    self.log.warning(msg)
+                    raise ReadException(msg)
             else:
-                self.log.warning('No response frame received!')
+                msg = 'No response frame received!'
+                self.log.warning(msg)
+                raise ReadException(msg)
         else:
-            self.log.warning('Request frame not valid')
+            msg = 'Request frame not valid'
+            self.log.warning(msg)
+            ReadException(msg)
 
         return value
 
@@ -369,7 +382,7 @@ class ScomDevice(object):
                 elif length == 4:
                     value = struct.unpack('L', value[0:4])[0]
             else:
-                assert False
+                assert False    # Support for given type not supported yet!
 
             return value
         else:
