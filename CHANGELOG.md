@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.4 - (2023-03-13)
+- Added `ReadException` and `WriteException`
+- Added `reset()` method to `Scom` class
+- Bugfixes in `dman.DeviceManager` class
+
 ## 0.7.3 - (2021-04-28)
 - Added tests for `dman.DeviceManager` class
 - Bugfixes in `dman.DeviceManager` class
