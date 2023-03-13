@@ -68,7 +68,7 @@ class Scom(object):
         response_frame = Frame()
         if lock_acquired:
             try:
-                self.set_rx_timeout(rx_timeout_in_seconds)  # Set time to wait for the response
+                self.set_rx_timeout(int(rx_timeout_in_seconds))  # Set time to wait for the response
                 self._ser.write(buffer)
             except SerialTimeoutException:
                 self.log.error('Error writing frame!')
@@ -125,6 +125,13 @@ class Scom(object):
             self.log.info('Warning: No response from device')
 
         return None
+
+    def reset(self):
+        """Resets/clears the input buffers.
+        """
+        # Reset RX buffers
+        self._ser.reset_input_buffer()
+        self._rxBuffer.clear()
 
     def close(self):
         if self._ser:

@@ -11,7 +11,7 @@ Manually build extension modules:
 ```bash
 $ pipenv run setup.py build_ext --inplace
 ```
-After build, you need to manually copy them into the `src/sion/scom/` folder.
+After build, you need to manually copy them into the `src/sino/scom/` folder.
 
 Install package needed for deployment (coverage, build, twine, etc.):
 ```bash
