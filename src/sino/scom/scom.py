@@ -68,7 +68,7 @@ class Scom(object):
         response_frame = Frame()
         if lock_acquired:
             try:
-                self.set_rx_timeout(rx_timeout_in_seconds)  # Set time to wait for the response
+                self.set_rx_timeout(int(rx_timeout_in_seconds))  # Set time to wait for the response
                 self._ser.write(buffer)
             except SerialTimeoutException:
                 self.log.error('Error writing frame!')
