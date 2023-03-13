@@ -10,7 +10,7 @@ from ..property import Property
 from ..frame import Frame as ScomFrame
 from ..defines import *
 from .common.paramproxycontainer import ParamProxyContainer
-from ..exception import ReadException
+from ..exception import ReadException, WriteException
 
 
 # Links:
@@ -204,9 +204,13 @@ class ScomDevice(object):
                 value_size = response_frame.response_value_size()
                 value = response_frame[24:24 + value_size]
             else:
-                self.log.warning(u'Response frame not valid!')
+                msg = 'Response frame not valid!'
+                self.log.warning(msg)
+                raise WriteException(msg)
         else:
-            self.log.warning(u'Request frame not valid!')
+            msg = 'Request frame not valid!'
+            self.log.warning(msg)
+            raise WriteException(msg)
 
         return value
 
@@ -255,7 +259,9 @@ class ScomDevice(object):
         if success and value is not None:
             returned_value = value
         else:
-            self.log.warning('Could not read parameter \'%s\'' % param_info['name'])
+            msg = 'Could not read parameter \'%s\'' % param_info['name']
+            self.log.warning(msg)
+            raise ReadException(msg)
 
         return returned_value
 
@@ -386,5 +392,7 @@ class ScomDevice(object):
 
             return value
         else:
-            self.log.warning('Could not read user info \'%s\'' % user_info['name'])
+            msg = 'Could not read user info \'%s\'' % user_info['name']
+            self.log.warning(msg)
+            raise ReadException(msg)
             return default_value

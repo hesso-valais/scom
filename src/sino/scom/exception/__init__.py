@@ -6,3 +6,4 @@ import pkgutil
 __path__ = pkgutil.extend_path(__path__, __name__)
 
 from .readexception import ReadException
+from .writeexception import WriteException
