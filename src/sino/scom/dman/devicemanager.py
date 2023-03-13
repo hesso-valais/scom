@@ -262,17 +262,18 @@ class DeviceManager(DeviceNotifier):
 
                 for missingDeviceAddress in missing_device_address_list:
                     missing_device = self._get_device_by_address(missingDeviceAddress)
-                    assert missing_device
 
                     self.log.info('Studer device disappeared: %s #%d' % (device_category, missingDeviceAddress))
 
-                    # Notify subscribers about the disappeared device
-                    self._notify_subscribers(device=missing_device,
-                                             device_category=device_category,
-                                             connected=False)
+                    if missing_device:
+                        # Notify subscribers about the disappeared device
+                        self._notify_subscribers(device=missing_device,
+                                                 device_category=device_category,
+                                                 connected=False)
 
                     # Remove studer device from list
-                    self._device.pop(missingDeviceAddress)
+                    if missingDeviceAddress in self._device:
+                        self._device.pop(missingDeviceAddress)
                     need_garbage_collect = True
 
         if need_garbage_collect:  # Garbage collect to update WeakValueDictionaries
