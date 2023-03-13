@@ -126,6 +126,13 @@ class Scom(object):
 
         return None
 
+    def reset(self):
+        """Resets/clears the input buffers.
+        """
+        # Reset RX buffers
+        self._ser.reset_input_buffer()
+        self._rxBuffer.clear()
+
     def close(self):
         if self._ser:
             self._ser.close()
