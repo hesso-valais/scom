@@ -101,6 +101,10 @@ class DeviceManager(DeviceNotifier):
         return cls._instance
 
     @classmethod
+    def is_instance_present(cls):
+        return True if cls._instance else False
+
+    @classmethod
     def _set_instance(cls, instance):
         assert cls._instance is None, 'Only one instance of this class allowed'
         cls._instance = instance
