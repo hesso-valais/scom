@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.8.0 - (2023-03-16)
+- Added Bsp device
+
 ## 0.7.4 - (2023-03-13)
 - Added `ReadException` and `WriteException`
 - Added `reset()` method to `Scom` class
