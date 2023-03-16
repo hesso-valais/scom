@@ -125,8 +125,8 @@ class Bsp(ScomDevice):
         """Reads and returns the actual power [W]."""
         return self._read_user_info_ex(self.userInfoTable['power'])
 
-    def get_remaining_autonomity(self):
-        """Reads and returns the remaining autonomity in minutes."""
+    def get_remaining_autonomy(self):
+        """Reads and returns the remaining autonomy in minutes."""
         return self._read_user_info_ex(self.userInfoTable['remainingAutonomy'])
 
     def get_voltage_of_the_system(self):
@@ -135,7 +135,7 @@ class Bsp(ScomDevice):
     def get_nominal_capacity(self):
         return self._read_parameter_info('nominalCapacity')
 
-    def setNominalCapacity(self, value):
+    def set_nominal_capacity(self, value):
         """Sets the nominal battery capacity.
 
         Caution:
@@ -177,7 +177,7 @@ class Bsp(ScomDevice):
         value = self.get_battery_current()
         value = self.get_soc()
         value = self.get_power()
-        value = self.get_remaining_autonomity()
+        value = self.get_remaining_autonomy()
         value = self.get_voltage_of_the_system()
         value = self.get_nominal_capacity()
         value = self.get_nominal_discharge_duration()
