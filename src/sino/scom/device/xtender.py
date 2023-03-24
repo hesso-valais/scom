@@ -218,7 +218,7 @@ class Xtender(ScomDevice):
         """
         return self.get_software_version()
 
-    def set_power_enable(self, enable):
+    def set_power_enable(self, enable) -> bool:
         """Enables/disables the device
         """
         try:
