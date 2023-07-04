@@ -14,9 +14,6 @@ class Scom(object):
     """Handles the SCOM serial connection.
     """
 
-    SCOM_FRAME_HEADER_SIZE = 14
-    SCOM_FRAME_TRAILER_SIZE = 2
-
     log = logging.getLogger(__name__)
 
     rxErrors = 0
@@ -106,7 +103,7 @@ class Scom(object):
                     self.log.error('Error reading serial buffer!')
                     return None
 
-            if rx_data_size_total > Scom.SCOM_FRAME_HEADER_SIZE + Scom.SCOM_FRAME_TRAILER_SIZE:
+            if rx_data_size_total > Frame.HEADER_SIZE + Frame.TRAILER_SIZE:
                 # Try to parse a frame for the rx buffer
                 success, length = response_frame.parse_frame_from_string(self._rxBuffer)
 
