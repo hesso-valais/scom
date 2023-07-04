@@ -11,6 +11,9 @@ class Frame(BaseFrame):
     """High Level SCOM frame providing a better python like style.
     """
 
+    HEADER_SIZE = 14
+    TRAILER_SIZE = 2
+
     log = logging.getLogger(__name__)
 
     def __init__(self, buffer_size: int = 1024):
@@ -20,8 +23,6 @@ class Frame(BaseFrame):
         self.dataLength = 0
 
     def parse_frame_from_string(self, rx_buffer):
-        from .scom import Scom
-
         frame_length = 0
 
         if len(rx_buffer) < 12:
@@ -31,8 +32,8 @@ class Frame(BaseFrame):
         data_length = struct.unpack('<H', rx_buffer[10:10 + 2])[0]
         self.dataLength = data_length
 
-        if len(rx_buffer) >= Scom.SCOM_FRAME_HEADER_SIZE + data_length + Scom.SCOM_FRAME_TRAILER_SIZE:
-            frame_length = Scom.SCOM_FRAME_HEADER_SIZE + data_length + Scom.SCOM_FRAME_TRAILER_SIZE
+        if len(rx_buffer) >= self.HEADER_SIZE + data_length + self.TRAILER_SIZE:
+            frame_length = self.HEADER_SIZE + data_length + self.TRAILER_SIZE
             self.initialize_using_bytearray(rx_buffer, len(rx_buffer))
 
             # Copy frame buffer into own buffer
